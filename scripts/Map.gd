@@ -110,8 +110,14 @@ func generate_map():
 		for x in range(size):
 			candidates.append(Vector2i(x, y))
 
-	# 3. Mélanger les cellules
-	candidates.shuffle()
+	# 3. Mélanger les cellules avec NOTRE RNG
+	#    => le résultat dépend uniquement de `seed`
+	for i in range(candidates.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+
+		var temp := candidates[i]
+		candidates[i] = candidates[j]
+		candidates[j] = temp
 
 	# 4. Ajouter les obstacles progressivement
 	var target_obstacles := int(size * size * obstacle_density)
