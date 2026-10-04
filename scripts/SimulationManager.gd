@@ -11,6 +11,8 @@ var agent_with_world_positions: Dictionary = {}
 
 var spawn_rng := RandomNumberGenerator.new()
 
+var simulation_step: int = 0
+
 func _ready() -> void:
 	call_deferred("initialize_agents")
 
@@ -46,6 +48,8 @@ func initialize_agents() -> void:
 		free_cells.pop_back()
 
 		_register_agent(agent, spawn_position)
+	
+	$StepTimer.start()
 
 
 func _get_free_cells() -> Array[Vector2i]:
@@ -61,8 +65,10 @@ func _get_free_cells() -> Array[Vector2i]:
 func _register_agent(agent: Agent, world_position: Vector2i) -> void:
 	agent_with_world_positions[agent] = world_position
 	agent.initialize(float(map_renderer.tile_size))
+	_update_agent_perception(agent)
 	_update_agent_display(agent)
 	print("Registered ", agent.name, " at world cell ", world_position, "; local position: ", agent.local_position)
+	print(agent.name, " local map: ", agent.local_map)
 
 
 func _update_agent_display(agent: Agent) -> void:
@@ -72,3 +78,24 @@ func _update_agent_display(agent: Agent) -> void:
 	var cell_center := (Vector2(world_position) * tile_size+ Vector2.ONE * tile_size * 0.5)
 
 	agent.global_position = map_renderer.to_global(cell_center)
+
+
+func _update_agent_perception(agent: Agent) -> void:
+	var world_position: Vector2i = (agent_with_world_positions[agent])
+
+	var observation := world.get_observation(world_position, agent.vision_range)
+	
+	agent.perceive(observation)
+
+
+func _on_setp_timer_timeout() -> void:
+	step_simulation()
+
+
+func step_simulation() -> void:
+	simulation_step += 1
+	print("Simulation step: ", simulation_step)
+	for agent: Agent in agent_with_world_positions:
+		var move: Vector2i = agent.choose_move_action()
+		
+		

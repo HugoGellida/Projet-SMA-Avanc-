@@ -23,3 +23,8 @@ script = ExtResource("3_epypp")
 
 [node name="SimulationManager" type="Node2D" parent="." unique_id=506008237]
 script = ExtResource("4_0hol4")
+
+[node name="StepTimer" type="Timer" parent="SimulationManager" unique_id=1583313914]
+wait_time = 0.2
+
+[connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]
