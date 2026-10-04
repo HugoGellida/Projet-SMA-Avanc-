@@ -1,8 +1,8 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1790872828
+::res://::1791132580
 icon.svg::CompressedTexture2D::6854264017842438785::1790869968::1790869968::1::::<><><>0<>0<>3d69f87745928da180cc2f0667edcc57<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
-node_2d.tscn::PackedScene::5457470000778222127::1790872828::0::1::::<><><>0<>0<><>::uid://dsdcm6nos8gqw::::res://scripts/Map.gd
-::res://scripts/::1790872828
-Map.gd::GDScript::8428998882306223478::1790872828::0::1::::Map<>Node2D<><>0<>0<><>::
-MapRenderer.gd::GDScript::6491707778980676709::1790872039::0::1::::MapRenderer<>Node2D<><>0<>0<><>::
-Tile.gd::GDScript::1156201345237521957::1790872428::0::1::::Tile<>Node2D<><>0<>0<><>::
+node_2d.tscn::PackedScene::5457470000778222127::1790874975::0::1::::<><><>0<>0<><>::uid://dsdcm6nos8gqw::::res://scripts/Map.gd<>uid://cyqvqjlvg0tpt::::res://scripts/MapRenderer.gd
+::res://scripts/::1790874975
+Map.gd::GDScript::8428998882306223478::1790874975::0::1::::Map<>Node2D<><>0<>0<><>::
+MapRenderer.gd::GDScript::6491707778980676709::1790874756::0::1::::MapRenderer<>Node2D<><>0<>0<><>::
+Tile.gd::GDScript::1156201345237521957::1790874822::0::1::::Tile<>Node2D<><>0<>0<><>::
