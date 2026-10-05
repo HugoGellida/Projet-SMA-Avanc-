@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://cj0vy7adjwp32"]
+
+[ext_resource type="Script" uid="uid://dsdcm6nos8gqw" path="res://scripts/Map.gd" id="1_wtcfe"]
+[ext_resource type="Script" uid="uid://cyqvqjlvg0tpt" path="res://scripts/MapRenderer.gd" id="2_0e48y"]
+
+[node name="Node2D" type="Node2D" unique_id=1587768246]
+
+[node name="Map" type="Node2D" parent="." unique_id=229854672]
+script = ExtResource("1_wtcfe")
+
+[node name="MapRenderer" type="Node2D" parent="." unique_id=1855577675]
+script = ExtResource("2_0e48y")
+tile_size = 25
