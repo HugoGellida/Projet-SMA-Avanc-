@@ -3,15 +3,27 @@ class_name Map
 
 @export var size: int = 20
 @export_range(0.0, 0.6)
-var obstacle_density: float = 0.30
+var obstacle_density: float = 0.1
 
-@export var seed: int = 12345
+@export var seed: int = 11111
 @export var randomize_seed: bool = false
 
 var content: Array[Tile] = []
 var rng: RandomNumberGenerator
+var biome_noise: FastNoiseLite
 
 @onready var renderer: MapRenderer = $"../MapRenderer"
+
+func get_biome(noise_value: float) -> String:
+	if noise_value < -0.2:
+		return "water"
+	if noise_value < -0.08:
+		return "sand"
+	if noise_value < 0.12:
+		return "grass"
+	if noise_value < 0.28:
+		return "forest"
+	return "snow"
 
 func get_tile(coord: Vector2i) -> Tile:
 	return content[coord.y * size + coord.x]
@@ -90,16 +102,21 @@ func generate_map():
 	else:
 		rng.seed = seed
 
+	biome_noise = FastNoiseLite.new()
+	biome_noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	biome_noise.seed = rng.seed
+	biome_noise.frequency = 0.08
+	biome_noise.fractal_octaves = 3
+
 	content.clear()
 
 	# 1. Créer une map entièrement libre
 	for y in range(size):
 		for x in range(size):
 			var tile := Tile.new()
-
-			tile.coord = Vector2i(x, y)
-			tile.explored = false
-			tile.obstacle = false
+			var coord := Vector2i(x, y)
+			var biome := get_biome(biome_noise.get_noise_2d(x, y))
+			tile.init(coord, false, biome)
 
 			content.append(tile)
 

@@ -10,3 +10,4 @@ script = ExtResource("1_wtcfe")
 
 [node name="MapRenderer" type="Node2D" parent="." unique_id=1855577675]
 script = ExtResource("2_0e48y")
+tile_size = 25
