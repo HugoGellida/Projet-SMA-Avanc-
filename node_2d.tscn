@@ -12,6 +12,7 @@ script = ExtResource("1_wtcfe")
 
 [node name="MapRenderer" type="Node2D" parent="." unique_id=1855577675]
 script = ExtResource("2_0e48y")
+tile_size = 25
 
 [node name="Agents" type="Node2D" parent="." unique_id=238102308]
 
@@ -28,4 +29,3 @@ script = ExtResource("4_0hol4")
 wait_time = 0.2
 
 [connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]
-tile_size = 25
