@@ -118,8 +118,9 @@ func update_communication_array(agent_array :Dictionary) -> void:
 		var other_agent_position: Vector2i = local_position + offset
 		current_communication_array[other_agent] = other_agent_position
 	
-	if not agent_array.is_empty():
-		print(name, " communication array: ", current_communication_array)
+	# pour debug
+	#if not agent_array.is_empty():
+		#print(name, " communication array: ", current_communication_array)
 
 
 # voir si un case est un frontier case
@@ -132,3 +133,33 @@ func _is_frontier_position(coord: Vector2i) -> bool:
 			return true
 			
 	return false
+
+
+# envoyer la carte à d'autres agents
+func prepare_map_to_send() -> Dictionary:
+	return local_map.duplicate()
+
+
+# changer la carte avec les agent dans le range de communication
+func recive_map_to_merge(sender: Agent, message: Dictionary) -> void:
+	if not current_communication_array.has(sender):
+		return
+		
+	if message.is_empty():
+		return
+	
+	# commencer à merge la carte
+	var sender_position_in_my_map: Vector2i = current_communication_array[sender]
+	var sender_local_position: Vector2i = message["local_position"]
+	var pivot_offset: Vector2i = sender_position_in_my_map - sender_local_position
+	
+	var sender_map: Dictionary = message["local_map"]
+	
+	for position_in_sender_map: Vector2i in sender_map:
+		# changer position in sender map to my map
+		var position_in_my_map: Vector2i  = position_in_sender_map + pivot_offset
+		if local_map.has(position_in_my_map):
+			continue
+		
+		# update my map
+		local_map[position_in_my_map] = sender_map[position_in_sender_map]

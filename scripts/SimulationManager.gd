@@ -53,6 +53,9 @@ func initialize_agents() -> void:
 	for agent in agents:
 		_update_agent_comunicate_array(agent)
 	
+	# échanger la carte avant partir
+	_exchange_agent_maps()
+	
 	$StepTimer.start()
 
 
@@ -110,6 +113,26 @@ func _update_agent_comunicate_array(agent: Agent) -> void:
 	agent.update_communication_array(communication_array)
 
 
+func _exchange_agent_maps() -> void:
+	var map_messages: Dictionary = {}
+	
+	# collecter toutes les carte local de tous les agents
+	for agent: Agent in agent_with_world_positions:
+		var map = agent.prepare_map_to_send()
+		map_messages[agent] = {
+			"local_position" : agent.local_position,
+			"local_map" : map
+		}
+	
+	# envoyer la carte à agent dans le range de communication
+	for agent: Agent in agent_with_world_positions:
+		var message: Dictionary = map_messages[agent]
+		
+		for other_agent: Agent in agent.current_communication_array:
+			other_agent.recive_map_to_merge(agent, message)
+			
+
+
 func _on_setp_timer_timeout() -> void:
 	step_simulation()
 	
@@ -148,6 +171,9 @@ func step_simulation() -> void:
 	# mise à jour le communication array pour tous les agents
 	for agent: Agent in agent_with_world_positions:
 		_update_agent_comunicate_array(agent)
+	
+	# échanger la carte entre les agents
+	_exchange_agent_maps()
 		
 	if all_finished:
 		$StepTimer.stop()
