@@ -22,6 +22,18 @@ script = ExtResource("3_epypp")
 [node name="Agent2" type="Node2D" parent="Agents" unique_id=1560334558]
 script = ExtResource("3_epypp")
 
+[node name="Agent3" type="Node2D" parent="Agents" unique_id=737447801]
+script = ExtResource("3_epypp")
+
+[node name="Agent4" type="Node2D" parent="Agents" unique_id=1199647458]
+script = ExtResource("3_epypp")
+
+[node name="Agent5" type="Node2D" parent="Agents" unique_id=1073103246]
+script = ExtResource("3_epypp")
+
+[node name="Agent6" type="Node2D" parent="Agents" unique_id=2087803682]
+script = ExtResource("3_epypp")
+
 [node name="SimulationManager" type="Node2D" parent="." unique_id=506008237]
 script = ExtResource("4_0hol4")
 
