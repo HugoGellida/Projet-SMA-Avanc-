@@ -28,3 +28,4 @@ script = ExtResource("4_0hol4")
 wait_time = 0.2
 
 [connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]
+tile_size = 25
