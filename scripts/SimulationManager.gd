@@ -94,8 +94,34 @@ func _on_setp_timer_timeout() -> void:
 
 func step_simulation() -> void:
 	simulation_step += 1
+	var all_finished: bool = true
+	
 	print("Simulation step: ", simulation_step)
+	
 	for agent: Agent in agent_with_world_positions:
-		var move: Vector2i = agent.choose_move_action()
+		var action: Vector2i = agent.choose_move_action()
 		
+		if action != Vector2i.ZERO:
+			var current_agent_location: Vector2i = (agent_with_world_positions[agent])
+			
+			var target: Vector2i = current_agent_location + action
+			
+			if absi(action.x) + absi(action.y) != 1:
+				push_warning("%s illegal move action：:%s" % [agent.name, action])
+			elif not world.is_inside_map(target):
+				push_warning("%s illegal move action：%s" % [agent.name, target])
+			elif world.get_tile(target).obstacle:
+				push_warning("%s illegal move action：%s" % [agent.name, target])
+			else:
+				agent_with_world_positions[agent] = target
+				agent.confirm_move(action)
+				_update_agent_display(agent)
+			
+		_update_agent_perception(agent)
 		
+		if not agent.exploration_finished:
+			all_finished = false
+		
+	if all_finished:
+		$StepTimer.stop()
+		print("Exploration finished! ")
