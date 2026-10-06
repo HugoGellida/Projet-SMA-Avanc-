@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dsdcm6nos8gqw" path="res://scripts/Map.gd" id="1_wtcfe"]
 [ext_resource type="Script" uid="uid://cyqvqjlvg0tpt" path="res://scripts/MapRenderer.gd" id="2_0e48y"]
+[ext_resource type="Script" uid="uid://ehctiehj3fvu" path="res://scripts/Agent.gd" id="3_epypp"]
+[ext_resource type="Script" uid="uid://dwp40gb2mvqjr" path="res://scripts/SimulationManager.gd" id="4_0hol4"]
 
 [node name="Node2D" type="Node2D" unique_id=1587768246]
 
@@ -10,4 +12,20 @@ script = ExtResource("1_wtcfe")
 
 [node name="MapRenderer" type="Node2D" parent="." unique_id=1855577675]
 script = ExtResource("2_0e48y")
+
+[node name="Agents" type="Node2D" parent="." unique_id=238102308]
+
+[node name="Agent" type="Node2D" parent="Agents" unique_id=665319151]
+script = ExtResource("3_epypp")
+
+[node name="Agent2" type="Node2D" parent="Agents" unique_id=1560334558]
+script = ExtResource("3_epypp")
+
+[node name="SimulationManager" type="Node2D" parent="." unique_id=506008237]
+script = ExtResource("4_0hol4")
+
+[node name="StepTimer" type="Timer" parent="SimulationManager" unique_id=1583313914]
+wait_time = 0.2
+
+[connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]
 tile_size = 25

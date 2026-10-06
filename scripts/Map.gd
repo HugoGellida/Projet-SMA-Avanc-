@@ -179,3 +179,21 @@ func generate_map():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
+
+
+func get_observation(world_position: Vector2i, vision_range: int) -> Dictionary:
+	var observation: Dictionary = {}
+	
+	for dy in range(-vision_range, vision_range + 1):
+		for dx in range(-vision_range, vision_range + 1):
+			var offset := Vector2i(dx, dy)
+			var target := world_position + offset
+
+			if not is_inside_map(target):
+				observation[offset] = Agent.CellState.BOUNDARY
+			elif get_tile(target).obstacle:
+				observation[offset] = Agent.CellState.OBSTACLE
+			else:
+				observation[offset] = Agent.CellState.FREE
+
+	return observation
