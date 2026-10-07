@@ -26,6 +26,9 @@ script = ExtResource("3_epypp")
 [node name="Agent3" type="Node2D" parent="Agents" unique_id=564121910]
 script = ExtResource("3_epypp")
 
+[node name="Agent4" type="Node2D" parent="Agents" unique_id=1082320315]
+script = ExtResource("3_epypp")
+
 [node name="SimulationManager" type="Node2D" parent="." unique_id=506008237]
 script = ExtResource("4_0hol4")
 
@@ -39,6 +42,9 @@ script = ExtResource("4_q6r6c")
 script = ExtResource("4_q6r6c")
 
 [node name="AgentMapRenderer3" type="Node2D" parent="." unique_id=977042657]
+script = ExtResource("4_q6r6c")
+
+[node name="AgentMapRenderer4" type="Node2D" parent="." unique_id=2071851482]
 script = ExtResource("4_q6r6c")
 
 [connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]

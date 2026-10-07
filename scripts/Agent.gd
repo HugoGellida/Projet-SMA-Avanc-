@@ -158,6 +158,19 @@ func confirm_move(action: Vector2i) -> void:
 	_remove_invalid_assigned_tasks()
 
 
+func resume_unfinished_exploration() -> void:
+	task_assignments.clear()
+	assignment_revisions.clear()
+	exploration_round_active = false
+	exploration_finished = false
+	waiting_log_emitted = false
+	_refresh_cells_to_explore()
+	print(
+		"[RESUME] %s restarting frontier exploration; %d frontiers available."
+		% [name, cells_to_explore.size()]
+	)
+
+
 func perceive(observation: Dictionary) -> void:
 	for offset: Vector2i in observation:
 		var local_coord := local_position + offset
@@ -198,7 +211,7 @@ func _refresh_cells_to_explore() -> void:
 	cells_to_explore.clear()
 
 	for coord: Vector2i in local_map:
-		if not explored_cells.has(coord) and _is_frontier_position(coord):
+		if _is_frontier_position(coord):
 			cells_to_explore.append(coord)
 
 
@@ -342,7 +355,6 @@ func recive_map_to_merge(sender: Agent, message: Dictionary) -> void:
 		)
 
 	if assignment_changes["pair_changed"]:
-		exploration_round_active = true
 		exploration_finished = false
 
 	if is_new_contact or map_changed or assignment_changes["other_changed"]:
@@ -463,22 +475,40 @@ func _assign_remaining_tasks(
 			self_route_cost = total_self_cost
 			self_route_position = task
 
+	var self_assignments_changed: bool = self_tasks != _get_assigned_tasks(self)
+	var sender_assignments_changed: bool = (
+		sender_tasks != _get_assigned_tasks(sender)
+	)
 	task_assignments[self] = self_tasks
 	task_assignments[sender] = sender_tasks
-	assignment_revisions[self] = int(assignment_revisions.get(self, 0)) + 1
-	assignment_revisions[sender] = int(assignment_revisions.get(sender, 0)) + 1
-	exploration_round_active = true
-	exploration_finished = false
-	waiting_log_emitted = false
-	print(
-		"[TASKS] %s / %s meeting at %s; %s tasks: %s; %s tasks: %s"
-		% [
-			name,
-			sender.name,
-			meeting_position,
-			name,
-			self_tasks,
-			sender.name,
-			sender_tasks
-		]
+	if self_assignments_changed:
+		assignment_revisions[self] = int(assignment_revisions.get(self, 0)) + 1
+	if sender_assignments_changed:
+		assignment_revisions[sender] = int(assignment_revisions.get(sender, 0)) + 1
+
+	var has_pending_tasks: bool = (
+		not self_tasks.is_empty()
+		or not sender_tasks.is_empty()
+		or not reserved_tasks.is_empty()
 	)
+	if has_pending_tasks or not cells_to_explore.is_empty():
+		exploration_round_active = true
+		exploration_finished = false
+		waiting_log_emitted = false
+	else:
+		exploration_round_active = false
+		exploration_finished = true
+
+	if has_pending_tasks or self_assignments_changed or sender_assignments_changed:
+		print(
+			"[TASKS] %s / %s meeting at %s; %s tasks: %s; %s tasks: %s"
+			% [
+				name,
+				sender.name,
+				meeting_position,
+				name,
+				self_tasks,
+				sender.name,
+				sender_tasks
+			]
+		)

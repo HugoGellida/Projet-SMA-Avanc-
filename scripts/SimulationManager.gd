@@ -10,6 +10,7 @@ extends Node2D
 @onready var agent_map_renderer_1: AgentMapRenderer = $"../AgentMapRenderer1"
 @onready var agent_map_renderer_2: AgentMapRenderer = $"../AgentMapRenderer2"
 @onready var agent_map_renderer_3: AgentMapRenderer = $"../AgentMapRenderer3"
+@onready var agent_map_renderer_4: AgentMapRenderer = $"../AgentMapRenderer4"
 
 
 var agent_with_world_positions: Dictionary = {}
@@ -96,6 +97,12 @@ func _register_agent(agent: Agent, world_position: Vector2i) -> void:
 		agent.map_renderer.setup(agent)
 		agent.map_renderer.label_text = agent.name
 		agent.map_renderer.position = Vector2(600, 500)
+		
+	elif agent.name == "Agent4":
+		agent.map_renderer = agent_map_renderer_4
+		agent.map_renderer.setup(agent)
+		agent.map_renderer.label_text = agent.name
+		agent.map_renderer.position = Vector2(900, 100)
 	
 	_update_agent_perception(agent)
 	_update_agent_display(agent)
@@ -162,7 +169,7 @@ func step_simulation() -> void:
 	simulation_step += 1
 	var all_finished: bool = true
 	
-	print("Simulation step: ", simulation_step)
+	#print("Simulation step: ", simulation_step)
 	
 	# execute agents action
 	for agent: Agent in agent_with_world_positions:
@@ -203,29 +210,35 @@ func step_simulation() -> void:
 			break
 
 	if all_finished:
-		var missing_agent_map_cells: int = _get_missing_agent_map_cells_count()
-		if missing_agent_map_cells == 0:
+		var all_agent_maps_complete: bool = true
+		for agent: Agent in agent_with_world_positions:
+			if _get_missing_world_cells_count(agent) > 0:
+				all_agent_maps_complete = false
+				break
+
+		if all_agent_maps_complete:
 			$StepTimer.stop()
 			print("Exploration finished! ")
 		elif not waiting_for_map_coverage:
 			waiting_for_map_coverage = true
 			push_warning(
-				"Agents are idle, but %d agent-map cells are still missing."
-				% missing_agent_map_cells
+				"Agents are idle, but at least one map is incomplete; restarting frontier exploration."
 			)
+			for agent: Agent in agent_with_world_positions:
+				agent.resume_unfinished_exploration()
 	elif waiting_for_map_coverage:
 		waiting_for_map_coverage = false
 
 
-func _get_missing_agent_map_cells_count() -> int:
+func _get_missing_world_cells_count(agent: Agent) -> int:
 	var missing_count: int = 0
-	for agent: Agent in agent_with_world_positions:
-		var agent_world_origin: Vector2i = (
-			agent_with_world_positions[agent] - agent.local_position
-		)
-		for tile: Tile in world.content:
-			var local_coord: Vector2i = tile.coord - agent_world_origin
-			if not agent.local_map.has(local_coord):
-				missing_count += 1
+	var agent_world_origin: Vector2i = (
+		agent_with_world_positions[agent] - agent.local_position
+	)
+
+	for tile: Tile in world.content:
+		var local_coord: Vector2i = tile.coord - agent_world_origin
+		if not agent.local_map.has(local_coord):
+			missing_count += 1
 
 	return missing_count
