@@ -25,6 +25,8 @@ var local_position: Vector2i = Vector2i.ZERO
 
 var local_map: Dictionary = {}
 
+var map_renderer: AgentMapRenderer
+
 var display_radius: float = 3.5
 
 var current_target: Vector2i = Vector2i.ZERO
@@ -41,6 +43,7 @@ func initialize(tile_size: float) -> void:
 
 	display_radius = tile_size * 0.35
 	z_index = 1
+	
 	queue_redraw()
 
 
@@ -106,6 +109,7 @@ func perceive(observation :Dictionary) -> void:
 	for offset: Vector2i in observation:
 		var local_coord := local_position + offset
 		local_map[local_coord] = observation[offset]
+	map_renderer.queue_redraw()
 
 
 # voir avec quels agents on peut communiquer et leur position dans notre local map
