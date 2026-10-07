@@ -9,12 +9,16 @@ extends Node2D
 
 @onready var agent_map_renderer_1: AgentMapRenderer = $"../AgentMapRenderer1"
 @onready var agent_map_renderer_2: AgentMapRenderer = $"../AgentMapRenderer2"
+@onready var agent_map_renderer_3: AgentMapRenderer = $"../AgentMapRenderer3"
+@onready var agent_map_renderer_4: AgentMapRenderer = $"../AgentMapRenderer4"
+
 
 var agent_with_world_positions: Dictionary = {}
 
 var spawn_rng := RandomNumberGenerator.new()
 
 var simulation_step: int = 0
+var waiting_for_map_coverage: bool = false
 
 func _ready() -> void:
 	call_deferred("initialize_agents")
@@ -80,19 +84,30 @@ func _register_agent(agent: Agent, world_position: Vector2i) -> void:
 		agent.map_renderer = agent_map_renderer_1
 		agent.map_renderer.setup(agent)
 		agent.map_renderer.label_text = agent.name
-		agent.map_renderer.position = Vector2(600, 50)
+		agent.map_renderer.position = Vector2(600, 100)
 
 	elif agent.name == "Agent2":
 		agent.map_renderer = agent_map_renderer_2
 		agent.map_renderer.setup(agent)
 		agent.map_renderer.label_text = agent.name
-		agent.map_renderer.position = Vector2(600, 200)
+		agent.map_renderer.position = Vector2(600, 300)
+		
+	elif agent.name == "Agent3":
+		agent.map_renderer = agent_map_renderer_3
+		agent.map_renderer.setup(agent)
+		agent.map_renderer.label_text = agent.name
+		agent.map_renderer.position = Vector2(600, 500)
+		
+	elif agent.name == "Agent4":
+		agent.map_renderer = agent_map_renderer_4
+		agent.map_renderer.setup(agent)
+		agent.map_renderer.label_text = agent.name
+		agent.map_renderer.position = Vector2(900, 100)
 	
 	_update_agent_perception(agent)
 	_update_agent_display(agent)
 	
 	print("Registered ", agent.name, " at world cell ", world_position, "; local position: ", agent.local_position)
-	print(agent.name, " local map: ", agent.local_map)
 
 
 func _update_agent_display(agent: Agent) -> void:
@@ -135,11 +150,7 @@ func _exchange_agent_maps() -> void:
 	
 	# collecter toutes les carte local de tous les agents
 	for agent: Agent in agent_with_world_positions:
-		var map = agent.prepare_map_to_send()
-		map_messages[agent] = {
-			"local_position" : agent.local_position,
-			"local_map" : map
-		}
+		map_messages[agent] = agent.prepare_map_to_send()
 	
 	# envoyer la carte à agent dans le range de communication
 	for agent: Agent in agent_with_world_positions:
@@ -158,7 +169,7 @@ func step_simulation() -> void:
 	simulation_step += 1
 	var all_finished: bool = true
 	
-	print("Simulation step: ", simulation_step)
+	#print("Simulation step: ", simulation_step)
 	
 	# execute agents action
 	for agent: Agent in agent_with_world_positions:
@@ -191,7 +202,43 @@ func step_simulation() -> void:
 	
 	# échanger la carte entre les agents
 	_exchange_agent_maps()
-		
+
+	all_finished = true
+	for agent: Agent in agent_with_world_positions:
+		if not agent.exploration_finished:
+			all_finished = false
+			break
+
 	if all_finished:
-		$StepTimer.stop()
-		print("Exploration finished! ")
+		var all_agent_maps_complete: bool = true
+		for agent: Agent in agent_with_world_positions:
+			if _get_missing_world_cells_count(agent) > 0:
+				all_agent_maps_complete = false
+				break
+
+		if all_agent_maps_complete:
+			$StepTimer.stop()
+			print("Exploration finished! ")
+		elif not waiting_for_map_coverage:
+			waiting_for_map_coverage = true
+			push_warning(
+				"Agents are idle, but at least one map is incomplete; restarting frontier exploration."
+			)
+			for agent: Agent in agent_with_world_positions:
+				agent.resume_unfinished_exploration()
+	elif waiting_for_map_coverage:
+		waiting_for_map_coverage = false
+
+
+func _get_missing_world_cells_count(agent: Agent) -> int:
+	var missing_count: int = 0
+	var agent_world_origin: Vector2i = (
+		agent_with_world_positions[agent] - agent.local_position
+	)
+
+	for tile: Tile in world.content:
+		var local_coord: Vector2i = tile.coord - agent_world_origin
+		if not agent.local_map.has(local_coord):
+			missing_count += 1
+
+	return missing_count

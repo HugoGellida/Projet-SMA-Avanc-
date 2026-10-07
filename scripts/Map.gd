@@ -5,7 +5,7 @@ class_name Map
 @export_range(0.0, 0.6)
 var obstacle_density: float = 0.9
 
-@export var seed: int = 666
+@export var seed: int = 12345
 @export var randomize_seed: bool = false
 
 var content: Array[Tile] = []

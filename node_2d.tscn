@@ -19,24 +19,32 @@ tile_size = 25
 
 [node name="Agent" type="Node2D" parent="Agents" unique_id=665319151]
 script = ExtResource("3_epypp")
-vision_range = null
-communication_range = null
 
 [node name="Agent2" type="Node2D" parent="Agents" unique_id=1560334558]
 script = ExtResource("3_epypp")
-vision_range = null
-communication_range = null
+
+[node name="Agent3" type="Node2D" parent="Agents" unique_id=564121910]
+script = ExtResource("3_epypp")
+
+[node name="Agent4" type="Node2D" parent="Agents" unique_id=1082320315]
+script = ExtResource("3_epypp")
 
 [node name="SimulationManager" type="Node2D" parent="." unique_id=506008237]
 script = ExtResource("4_0hol4")
 
 [node name="StepTimer" type="Timer" parent="SimulationManager" unique_id=1583313914]
-wait_time = 0.2
+wait_time = 0.06
 
 [node name="AgentMapRenderer1" type="Node2D" parent="." unique_id=1964554567]
 script = ExtResource("4_q6r6c")
 
 [node name="AgentMapRenderer2" type="Node2D" parent="." unique_id=1611929928]
+script = ExtResource("4_q6r6c")
+
+[node name="AgentMapRenderer3" type="Node2D" parent="." unique_id=977042657]
+script = ExtResource("4_q6r6c")
+
+[node name="AgentMapRenderer4" type="Node2D" parent="." unique_id=2071851482]
 script = ExtResource("4_q6r6c")
 
 [connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]
