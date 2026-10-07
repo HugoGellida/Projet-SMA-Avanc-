@@ -7,6 +7,9 @@ extends Node2D
 @onready var map_renderer: MapRenderer = $"../MapRenderer"
 @onready var agents_root: Node2D = $"../Agents"
 
+@onready var agent_map_renderer_1: AgentMapRenderer = $"../AgentMapRenderer1"
+@onready var agent_map_renderer_2: AgentMapRenderer = $"../AgentMapRenderer2"
+
 var agent_with_world_positions: Dictionary = {}
 
 var spawn_rng := RandomNumberGenerator.new()
@@ -65,8 +68,22 @@ func _get_free_cells() -> Array[Vector2i]:
 func _register_agent(agent: Agent, world_position: Vector2i) -> void:
 	agent_with_world_positions[agent] = world_position
 	agent.initialize(float(map_renderer.tile_size))
+	
+	if agent.name == "Agent":
+		agent.map_renderer = agent_map_renderer_1
+		agent.map_renderer.setup(agent)
+		agent.map_renderer.label_text = agent.name
+		agent.map_renderer.position = Vector2(600, 50)
+
+	elif agent.name == "Agent2":
+		agent.map_renderer = agent_map_renderer_2
+		agent.map_renderer.setup(agent)
+		agent.map_renderer.label_text = agent.name
+		agent.map_renderer.position = Vector2(600, 200)
+	
 	_update_agent_perception(agent)
 	_update_agent_display(agent)
+	
 	print("Registered ", agent.name, " at world cell ", world_position, "; local position: ", agent.local_position)
 	print(agent.name, " local map: ", agent.local_map)
 

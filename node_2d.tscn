@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://cyqvqjlvg0tpt" path="res://scripts/MapRenderer.gd" id="2_0e48y"]
 [ext_resource type="Script" uid="uid://ehctiehj3fvu" path="res://scripts/Agent.gd" id="3_epypp"]
 [ext_resource type="Script" uid="uid://dwp40gb2mvqjr" path="res://scripts/SimulationManager.gd" id="4_0hol4"]
+[ext_resource type="Script" uid="uid://ctw2f6283qdi8" path="res://scripts/AgentMapRenderer.gd" id="4_q6r6c"]
 
 [node name="Node2D" type="Node2D" unique_id=1587768246]
 
@@ -27,5 +28,11 @@ script = ExtResource("4_0hol4")
 
 [node name="StepTimer" type="Timer" parent="SimulationManager" unique_id=1583313914]
 wait_time = 0.2
+
+[node name="AgentMapRenderer1" type="Node2D" parent="." unique_id=1964554567]
+script = ExtResource("4_q6r6c")
+
+[node name="AgentMapRenderer2" type="Node2D" parent="." unique_id=1611929928]
+script = ExtResource("4_q6r6c")
 
 [connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]
