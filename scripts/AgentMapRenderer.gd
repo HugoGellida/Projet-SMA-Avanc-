@@ -1,7 +1,7 @@
 extends Node2D
 class_name AgentMapRenderer
 
-@export var tile_size: int = 15
+@export var tile_size: int = 5
 
 const COLOR_UNKNOWN = Color(0.15, 0.15, 0.15)
 const COLOR_FREE = Color(0.35, 0.65, 0.3)
@@ -51,7 +51,7 @@ func _draw() -> void:
 	
 	draw_string(
 	ThemeDB.fallback_font,
-	Vector2(-15, -25),
+	Vector2(100, 0),
 	label_text,
 	HORIZONTAL_ALIGNMENT_LEFT,
 	-1,
