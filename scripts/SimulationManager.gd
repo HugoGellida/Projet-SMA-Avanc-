@@ -49,6 +49,13 @@ func initialize_agents() -> void:
 
 		_register_agent(agent, spawn_position)
 	
+	# mise à jour le communication array pour tous les agent après la registation
+	for agent in agents:
+		_update_agent_comunicate_array(agent)
+	
+	# échanger la carte avant partir
+	_exchange_agent_maps()
+	
 	$StepTimer.start()
 
 
@@ -88,9 +95,47 @@ func _update_agent_perception(agent: Agent) -> void:
 	agent.perceive(observation)
 
 
+func _update_agent_comunicate_array(agent: Agent) -> void:
+	var agent_position: Vector2i = (agent_with_world_positions[agent])
+	
+	var communication_array: Dictionary = {}
+	
+	for other_agent: Agent in agent_with_world_positions:
+		if agent != other_agent:
+			
+			var other_agent_position : Vector2i = agent_with_world_positions[other_agent]
+			var offset : Vector2i = (other_agent_position - agent_position)
+			var distance: int = maxi(absi(offset.x), absi(offset.y))
+			
+			if distance <= agent.communication_range:
+				communication_array[other_agent] = offset
+	
+	agent.update_communication_array(communication_array)
+
+
+func _exchange_agent_maps() -> void:
+	var map_messages: Dictionary = {}
+	
+	# collecter toutes les carte local de tous les agents
+	for agent: Agent in agent_with_world_positions:
+		var map = agent.prepare_map_to_send()
+		map_messages[agent] = {
+			"local_position" : agent.local_position,
+			"local_map" : map
+		}
+	
+	# envoyer la carte à agent dans le range de communication
+	for agent: Agent in agent_with_world_positions:
+		var message: Dictionary = map_messages[agent]
+		
+		for other_agent: Agent in agent.current_communication_array:
+			other_agent.recive_map_to_merge(agent, message)
+			
+
+
 func _on_setp_timer_timeout() -> void:
 	step_simulation()
-
+	
 
 func step_simulation() -> void:
 	simulation_step += 1
@@ -98,6 +143,7 @@ func step_simulation() -> void:
 	
 	print("Simulation step: ", simulation_step)
 	
+	# execute agents action
 	for agent: Agent in agent_with_world_positions:
 		var action: Vector2i = agent.choose_move_action()
 		
@@ -121,6 +167,13 @@ func step_simulation() -> void:
 		
 		if not agent.exploration_finished:
 			all_finished = false
+	
+	# mise à jour le communication array pour tous les agents
+	for agent: Agent in agent_with_world_positions:
+		_update_agent_comunicate_array(agent)
+	
+	# échanger la carte entre les agents
+	_exchange_agent_maps()
 		
 	if all_finished:
 		$StepTimer.stop()
