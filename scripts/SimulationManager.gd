@@ -6,6 +6,8 @@ extends Node2D
 @onready var world: Map = $"../Map"
 @onready var map_renderer: MapRenderer = $"../MapRenderer"
 @onready var agents_root: Node2D = $"../Agents"
+@onready var heat_map: HeatMap = $"../HeatMap"
+@onready var heat_map_renderer: HeatMapRenderer = $"../HeatMapRenderer"
 
 @onready var agent_map_renderer_1: AgentMapRenderer = $"../AgentMapRenderer1"
 @onready var agent_map_renderer_2: AgentMapRenderer = $"../AgentMapRenderer2"
@@ -71,6 +73,7 @@ func initialize_agents() -> void:
 	# mise à jour le communication array pour tous les agent après la registation
 	for agent in agents:
 		_update_agent_comunicate_array(agent)
+		_update_heat_map(agent)
 	
 	# échanger la carte avant partir
 	_exchange_agent_maps()
@@ -79,7 +82,8 @@ func initialize_agents() -> void:
 	step_timer.stop()
 	simulation_finished = false
 	_update_control_buttons()
-
+	
+	
 
 func _get_free_cells() -> Array[Vector2i]:
 	var free_cells: Array[Vector2i] = []
@@ -208,6 +212,7 @@ func step_simulation() -> void:
 				agent_with_world_positions[agent] = target
 				agent.confirm_move(action)
 				_update_agent_display(agent)
+				_update_heat_map(agent)
 			
 		_update_agent_perception(agent)
 		
@@ -299,3 +304,16 @@ func _update_control_buttons() -> void:
 		run_pause_button.text = "Pause"
 
 	step_button.disabled = not is_paused
+
+
+func _update_heat_map(agent: Agent) -> void:
+	var coord: Vector2i = agent_with_world_positions[agent]
+
+	if not heat_map.case_with_number.has(coord):
+		push_warning("Heat map does not contain cell: %s" % coord)
+		return
+
+	heat_map.case_with_number[coord] += 1
+	heat_map_renderer.queue_redraw()
+			
+		

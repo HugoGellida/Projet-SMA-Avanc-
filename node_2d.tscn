@@ -5,6 +5,8 @@
 [ext_resource type="Script" uid="uid://ehctiehj3fvu" path="res://scripts/Agent.gd" id="3_epypp"]
 [ext_resource type="Script" uid="uid://dwp40gb2mvqjr" path="res://scripts/SimulationManager.gd" id="4_0hol4"]
 [ext_resource type="Script" uid="uid://ctw2f6283qdi8" path="res://scripts/AgentMapRenderer.gd" id="4_q6r6c"]
+[ext_resource type="Script" uid="uid://cbjfiid1gxu4u" path="res://scripts/HeatMap.gd" id="6_kdubu"]
+[ext_resource type="Script" uid="uid://dlk1qwwwbn2xo" path="res://scripts/HeatMapRenderer.gd" id="7_d21ai"]
 
 [node name="Node2D" type="Node2D" unique_id=1587768246]
 
@@ -64,5 +66,12 @@ text = "Start
 [node name="StepButton" type="Button" parent="UI/ControlBar" unique_id=1205743827]
 layout_mode = 2
 text = "Step"
+
+[node name="HeatMap" type="Node2D" parent="." unique_id=1821138963]
+script = ExtResource("6_kdubu")
+
+[node name="HeatMapRenderer" type="Node2D" parent="." unique_id=1069816007]
+position = Vector2(853, 316)
+script = ExtResource("7_d21ai")
 
 [connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]
