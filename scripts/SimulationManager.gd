@@ -12,6 +12,11 @@ extends Node2D
 @onready var agent_map_renderer_3: AgentMapRenderer = $"../AgentMapRenderer3"
 @onready var agent_map_renderer_4: AgentMapRenderer = $"../AgentMapRenderer4"
 
+@onready var step_timer: Timer = $StepTimer
+@onready var run_pause_button: Button = $"../UI/ControlBar/RunPauseButton"
+@onready var step_button: Button = $"../UI/ControlBar/StepButton"
+
+var simulation_finished: bool = false
 
 var agent_with_world_positions: Dictionary = {}
 
@@ -21,7 +26,14 @@ var simulation_step: int = 0
 var waiting_for_map_coverage: bool = false
 
 func _ready() -> void:
+	run_pause_button.disabled = true
+	step_button.disabled = true
+	
+	run_pause_button.pressed.connect(_on_run_pause_button_pressed)
+	step_button.pressed.connect(_on_step_button_pressed)
+	
 	call_deferred("initialize_agents")
+	
 
 func initialize_agents() -> void:
 	if randomize_spawn:
@@ -63,7 +75,10 @@ func initialize_agents() -> void:
 	# échanger la carte avant partir
 	_exchange_agent_maps()
 	
-	$StepTimer.start()
+	#$StepTimer.start()
+	step_timer.stop()
+	simulation_finished = false
+	_update_control_buttons()
 
 
 func _get_free_cells() -> Array[Vector2i]:
@@ -166,6 +181,9 @@ func _on_setp_timer_timeout() -> void:
 	
 
 func step_simulation() -> void:
+	if simulation_finished:
+		return
+		
 	simulation_step += 1
 	var all_finished: bool = true
 	
@@ -217,7 +235,9 @@ func step_simulation() -> void:
 				break
 
 		if all_agent_maps_complete:
-			$StepTimer.stop()
+			simulation_finished = true
+			step_timer.stop()
+			_update_control_buttons()
 			print("Exploration finished! ")
 		elif not waiting_for_map_coverage:
 			waiting_for_map_coverage = true
@@ -242,3 +262,40 @@ func _get_missing_world_cells_count(agent: Agent) -> int:
 			missing_count += 1
 
 	return missing_count
+
+
+func _on_run_pause_button_pressed() -> void:
+	if simulation_finished:
+		return
+
+	if step_timer.is_stopped():
+		step_timer.start()
+	else:
+		step_timer.stop()
+
+	_update_control_buttons()
+
+
+func _on_step_button_pressed() -> void:
+	if simulation_finished or not step_timer.is_stopped():
+		return
+	step_simulation()
+	_update_control_buttons()
+
+
+func _update_control_buttons() -> void:
+	if simulation_finished:
+		run_pause_button.text = "Finished"
+		run_pause_button.disabled = true
+		step_button.disabled = true
+		return
+
+	var is_paused: bool = step_timer.is_stopped()
+	run_pause_button.disabled = false
+
+	if is_paused:
+		run_pause_button.text = "Start"
+	else:
+		run_pause_button.text = "Pause"
+
+	step_button.disabled = not is_paused
