@@ -195,26 +195,35 @@ func step_simulation() -> void:
 	
 	# execute agents action
 	for agent: Agent in agent_with_world_positions:
-		var action: Vector2i = agent.choose_move_action()
-		
-		if action != Vector2i.ZERO:
+		var perception_updated: bool = false
+
+		for _move_index in range(agent.speed):
+			var action: Vector2i = agent.choose_move_action()
+			if action == Vector2i.ZERO:
+				break
+
 			var current_agent_location: Vector2i = (agent_with_world_positions[agent])
-			
 			var target: Vector2i = current_agent_location + action
-			
+
 			if absi(action.x) + absi(action.y) != 1:
 				push_warning("%s illegal move action：:%s" % [agent.name, action])
+				break
 			elif not world.is_inside_map(target):
 				push_warning("%s illegal move action：%s" % [agent.name, target])
+				break
 			elif world.get_tile(target).obstacle:
 				push_warning("%s illegal move action：%s" % [agent.name, target])
+				break
 			else:
 				agent_with_world_positions[agent] = target
 				agent.confirm_move(action)
 				_update_agent_display(agent)
 				_update_heat_map(agent)
-			
-		_update_agent_perception(agent)
+				_update_agent_perception(agent)
+				perception_updated = true
+
+		if not perception_updated:
+			_update_agent_perception(agent)
 		
 		if not agent.exploration_finished:
 			all_finished = false
