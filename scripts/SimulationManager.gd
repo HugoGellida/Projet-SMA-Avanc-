@@ -17,6 +17,9 @@ extends Node2D
 @onready var step_timer: Timer = $StepTimer
 @onready var run_pause_button: Button = $"../UI/ControlBar/RunPauseButton"
 @onready var step_button: Button = $"../UI/ControlBar/StepButton"
+@onready var restart_button: Button = $"../UI/ControlBar/RestartButton"
+@onready var cnp_button: CheckButton = $"../UI/ControlBar/CNPButton"
+@onready var communication_button: CheckButton = $"../UI/ControlBar/CommunicationButton"
 
 var simulation_finished: bool = false
 
@@ -27,13 +30,19 @@ var spawn_rng := RandomNumberGenerator.new()
 var simulation_step: int = 0
 var waiting_for_map_coverage: bool = false
 
+var allow_cnp: bool = true
+var allow_communication: bool = true
+
 func _ready() -> void:
 	run_pause_button.disabled = true
 	step_button.disabled = true
 	
 	run_pause_button.pressed.connect(_on_run_pause_button_pressed)
 	step_button.pressed.connect(_on_step_button_pressed)
-	
+	restart_button.pressed.connect(_on_restart_button_pressed)
+	cnp_button.toggled.connect(_on_cnp_button_toggled)
+	communication_button.toggled.connect(_on_communication_button_toggled)
+		
 	call_deferred("initialize_agents")
 	
 
@@ -76,7 +85,8 @@ func initialize_agents() -> void:
 		_update_heat_map(agent)
 	
 	# échanger la carte avant partir
-	_exchange_agent_maps()
+	if allow_communication:
+		_exchange_agent_maps()
 	
 	#$StepTimer.start()
 	step_timer.stop()
@@ -177,10 +187,9 @@ func _exchange_agent_maps() -> void:
 		
 		for other_agent: Agent in agent.current_communication_array:
 			other_agent.recive_map_to_merge(agent, message)
-			
 
 
-func _on_setp_timer_timeout() -> void:
+func _on_step_timer_timeout() -> void:
 	step_simulation()
 	
 
@@ -233,7 +242,8 @@ func step_simulation() -> void:
 		_update_agent_comunicate_array(agent)
 	
 	# échanger la carte entre les agents
-	_exchange_agent_maps()
+	if allow_communication:
+		_exchange_agent_maps()
 
 	all_finished = true
 	for agent: Agent in agent_with_world_positions:
@@ -297,6 +307,31 @@ func _on_step_button_pressed() -> void:
 	_update_control_buttons()
 
 
+func _on_restart_button_pressed() -> void:
+	step_timer.stop()
+	get_tree().reload_current_scene()
+
+
+func _on_cnp_button_toggled(enabled: bool) -> void:
+	allow_cnp = enabled
+
+	if enabled:
+		allow_communication = true
+		communication_button.set_pressed_no_signal(true)
+
+	_update_control_buttons()
+
+
+func _on_communication_button_toggled(enabled: bool) -> void:
+	allow_communication = enabled
+
+	if not enabled:
+		allow_cnp = false
+		cnp_button.set_pressed_no_signal(false)
+
+	_update_control_buttons()
+
+
 func _update_control_buttons() -> void:
 	if simulation_finished:
 		run_pause_button.text = "Finished"
@@ -324,5 +359,3 @@ func _update_heat_map(agent: Agent) -> void:
 
 	heat_map.case_with_number[coord] += 1
 	heat_map_renderer.queue_redraw()
-			
-		
