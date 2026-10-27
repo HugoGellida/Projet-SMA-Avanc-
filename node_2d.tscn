@@ -2,11 +2,30 @@
 
 [ext_resource type="Script" uid="uid://dsdcm6nos8gqw" path="res://scripts/Map.gd" id="1_wtcfe"]
 [ext_resource type="Script" uid="uid://cyqvqjlvg0tpt" path="res://scripts/MapRenderer.gd" id="2_0e48y"]
-[ext_resource type="Script" uid="uid://ehctiehj3fvu" path="res://scripts/Agent.gd" id="3_epypp"]
 [ext_resource type="Script" uid="uid://dwp40gb2mvqjr" path="res://scripts/SimulationManager.gd" id="4_0hol4"]
-[ext_resource type="Script" uid="uid://ctw2f6283qdi8" path="res://scripts/AgentMapRenderer.gd" id="4_q6r6c"]
 [ext_resource type="Script" uid="uid://cbjfiid1gxu4u" path="res://scripts/HeatMap.gd" id="6_kdubu"]
 [ext_resource type="Script" uid="uid://dlk1qwwwbn2xo" path="res://scripts/HeatMapRenderer.gd" id="7_d21ai"]
+[ext_resource type="Script" uid="uid://ds2cbu26jr2rm" path="res://scripts/AgentConfig.gd" id="8_config"]
+
+[sub_resource type="Resource" id="Resource_agent_1"]
+resource_name = "Agent 1"
+script = ExtResource("8_config")
+speed = 2
+
+[sub_resource type="Resource" id="Resource_agent_2"]
+resource_name = "Agent 2"
+script = ExtResource("8_config")
+color = Color(0, 0.7490196, 1, 1)
+
+[sub_resource type="Resource" id="Resource_agent_3"]
+resource_name = "Agent 3"
+script = ExtResource("8_config")
+color = Color(1, 0.84313726, 0, 1)
+
+[sub_resource type="Resource" id="Resource_agent_4"]
+resource_name = "Agent 4"
+script = ExtResource("8_config")
+color = Color(0.19607843, 0.8039216, 0.19607843, 1)
 
 [node name="Node2D" type="Node2D" unique_id=1587768246]
 
@@ -19,36 +38,15 @@ tile_size = 25
 
 [node name="Agents" type="Node2D" parent="." unique_id=238102308]
 
-[node name="Agent" type="Node2D" parent="Agents" unique_id=665319151]
-script = ExtResource("3_epypp")
-speed = 2
-
-[node name="Agent2" type="Node2D" parent="Agents" unique_id=1560334558]
-script = ExtResource("3_epypp")
-
-[node name="Agent3" type="Node2D" parent="Agents" unique_id=564121910]
-script = ExtResource("3_epypp")
-
-[node name="Agent4" type="Node2D" parent="Agents" unique_id=1082320315]
-script = ExtResource("3_epypp")
+[node name="AgentMaps" type="Node2D" parent="." unique_id=864666743]
+position = Vector2(600, 100)
 
 [node name="SimulationManager" type="Node2D" parent="." unique_id=506008237]
 script = ExtResource("4_0hol4")
+agent_configs = Array[ExtResource("8_config")]([SubResource("Resource_agent_1"), SubResource("Resource_agent_2"), SubResource("Resource_agent_3"), SubResource("Resource_agent_4")])
 
 [node name="StepTimer" type="Timer" parent="SimulationManager" unique_id=1583313914]
 wait_time = 0.06
-
-[node name="AgentMapRenderer1" type="Node2D" parent="." unique_id=1964554567]
-script = ExtResource("4_q6r6c")
-
-[node name="AgentMapRenderer2" type="Node2D" parent="." unique_id=1611929928]
-script = ExtResource("4_q6r6c")
-
-[node name="AgentMapRenderer3" type="Node2D" parent="." unique_id=977042657]
-script = ExtResource("4_q6r6c")
-
-[node name="AgentMapRenderer4" type="Node2D" parent="." unique_id=2071851482]
-script = ExtResource("4_q6r6c")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=76264809]
 
@@ -81,7 +79,7 @@ text = "Step"
 
 [node name="RestartButton" type="Button" parent="UI/ControlBar" unique_id=1769873912]
 layout_mode = 2
-text = "Restart"
+text = "Reset"
 
 [node name="HeatMap" type="Node2D" parent="." unique_id=1821138963]
 script = ExtResource("6_kdubu")

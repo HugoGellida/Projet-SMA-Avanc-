@@ -4,6 +4,7 @@ class_name Agent
 @export_range(1, 20, 1) var vision_range: int = 1
 @export_range(1, 20, 1) var communication_range: int = 2
 @export_range(1, 20, 1) var speed: int = 1
+@export var display_color: Color = Color.CORAL
 
 enum CellState {
 	UNKNOWN,
@@ -68,17 +69,7 @@ func _draw() -> void:
 
 
 func _get_agent_color() -> Color:
-	match name:
-		"Agent":
-			return Color.CORAL
-		"Agent2":
-			return Color.DEEP_SKY_BLUE
-		"Agent3":
-			return Color.GOLD
-		"Agent4":
-			return Color.LIME_GREEN
-		_:
-			return Color.WHITE
+	return display_color
 
 
 func choose_move_action(use_cnp: bool = true) -> Vector2i:

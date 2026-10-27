@@ -2,17 +2,14 @@ extends Node2D
 
 @export var spawn_seed: int = 12345
 @export var randomize_spawn: bool = false
+@export var agent_configs: Array[AgentConfig] = []
 
 @onready var world: Map = $"../Map"
 @onready var map_renderer: MapRenderer = $"../MapRenderer"
 @onready var agents_root: Node2D = $"../Agents"
+@onready var agent_maps_root: Node2D = $"../AgentMaps"
 @onready var heat_map: HeatMap = $"../HeatMap"
 @onready var heat_map_renderer: HeatMapRenderer = $"../HeatMapRenderer"
-
-@onready var agent_map_renderer_1: AgentMapRenderer = $"../AgentMapRenderer1"
-@onready var agent_map_renderer_2: AgentMapRenderer = $"../AgentMapRenderer2"
-@onready var agent_map_renderer_3: AgentMapRenderer = $"../AgentMapRenderer3"
-@onready var agent_map_renderer_4: AgentMapRenderer = $"../AgentMapRenderer4"
 
 @onready var step_timer: Timer = $StepTimer
 @onready var run_pause_button: Button = $"../UI/ControlBar/RunPauseButton"
@@ -59,30 +56,41 @@ func initialize_agents() -> void:
 
 	var agents: Array[Agent] = []
 
-	for child in agents_root.get_children():
-		if child is Agent:
-			agents.append(child)
-
-	if agents.is_empty():
-		push_warning("No Agent found.")
+	if agent_configs.is_empty():
+		push_warning("no configuration found.")
 		return
+
+	for config: AgentConfig in agent_configs:
+		if config == null:
+			push_error("agent configuration is empty.")
+			return
 
 	var free_cells := _get_free_cells()
 
-	if free_cells.size() < agents.size():
-		push_error("Not enough free cells to spawn all agents.")
+	if free_cells.size() < agent_configs.size():
+		push_error("Not enough place.")
 		return
 
 	agent_with_world_positions.clear()
 
-	for agent in agents:
+	for i in range(agent_configs.size()):
+		var config: AgentConfig = agent_configs[i]
+		var agent := Agent.new()
+		agent.name = "Agent%02d" % (i + 1)
+		agent.speed = config.speed
+		agent.vision_range = config.vision_range
+		agent.communication_range = config.communication_range
+		agent.display_color = config.color
+		agents_root.add_child(agent)
+		agents.append(agent)
+
 		var index := spawn_rng.randi_range(0, free_cells.size() - 1)
 		var spawn_position: Vector2i = free_cells[index]
 
 		free_cells[index] = free_cells[free_cells.size() - 1]
 		free_cells.pop_back()
 
-		_register_agent(agent, spawn_position)
+		_register_agent(agent, spawn_position, i)
 	
 	# mise à jour le communication array pour tous les agent après la registation
 	for agent in agents:
@@ -112,33 +120,19 @@ func _get_free_cells() -> Array[Vector2i]:
 	return free_cells
 
 
-func _register_agent(agent: Agent, world_position: Vector2i) -> void:
+func _register_agent(agent: Agent, world_position: Vector2i, index: int) -> void:
 	agent_with_world_positions[agent] = world_position
 	agent.initialize(float(map_renderer.tile_size))
-	
-	if agent.name == "Agent":
-		agent.map_renderer = agent_map_renderer_1
-		agent.map_renderer.setup(agent)
-		agent.map_renderer.label_text = agent.name
-		agent.map_renderer.position = Vector2(600, 100)
 
-	elif agent.name == "Agent2":
-		agent.map_renderer = agent_map_renderer_2
-		agent.map_renderer.setup(agent)
-		agent.map_renderer.label_text = agent.name
-		agent.map_renderer.position = Vector2(600, 300)
-		
-	elif agent.name == "Agent3":
-		agent.map_renderer = agent_map_renderer_3
-		agent.map_renderer.setup(agent)
-		agent.map_renderer.label_text = agent.name
-		agent.map_renderer.position = Vector2(600, 500)
-		
-	elif agent.name == "Agent4":
-		agent.map_renderer = agent_map_renderer_4
-		agent.map_renderer.setup(agent)
-		agent.map_renderer.label_text = agent.name
-		agent.map_renderer.position = Vector2(900, 100)
+	var renderer := AgentMapRenderer.new()
+	renderer.name = "Map_%s" % agent.name
+	renderer.label_text = str(agent.name)
+	var column: int = floori(index / 3.0)
+	var row: int = index % 3
+	renderer.position = Vector2(column * 300, row * 200)
+	agent_maps_root.add_child(renderer)
+	agent.map_renderer = renderer
+	renderer.setup(agent)
 	
 	_update_agent_perception(agent)
 	_update_agent_display(agent)
@@ -229,7 +223,7 @@ func _on_step_timer_timeout() -> void:
 	
 
 func step_simulation() -> void:
-	if simulation_finished:
+	if simulation_finished or agent_with_world_positions.is_empty():
 		return
 		
 	simulation_step += 1
@@ -380,6 +374,11 @@ func _reset_cnp_state() -> void:
 
 
 func _update_control_buttons() -> void:
+	if agent_with_world_positions.is_empty():
+		run_pause_button.disabled = true
+		step_button.disabled = true
+		return
+
 	if simulation_finished:
 		run_pause_button.text = "Finished"
 		run_pause_button.disabled = true
