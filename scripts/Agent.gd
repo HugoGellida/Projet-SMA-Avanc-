@@ -81,7 +81,40 @@ func _get_agent_color() -> Color:
 			return Color.WHITE
 
 
-func choose_move_action() -> Vector2i:
+func choose_move_action(use_cnp: bool = true) -> Vector2i:
+	if use_cnp:
+		return _choose_assigned_task_action()
+	return _choose_nearest_frontier_action()
+
+
+func _choose_nearest_frontier_action() -> Vector2i:
+	_refresh_cells_to_explore()
+	current_target = local_position
+	var queue: Array[Vector2i] = [local_position]
+	var first_moves: Dictionary = {local_position: Vector2i.ZERO}
+	var head: int = 0
+
+	while head < queue.size():
+		var current: Vector2i = queue[head]
+		head += 1
+
+		if _is_frontier_position(current):
+			current_target = current
+			exploration_finished = false
+			return first_moves[current]
+
+		for direction in DIRECTIONS:
+			var next: Vector2i = current + direction
+			if first_moves.has(next) or get_cell_state(next) != CellState.FREE:
+				continue
+			first_moves[next] = direction if current == local_position else first_moves[current]
+			queue.append(next)
+
+	exploration_finished = true
+	return Vector2i.ZERO
+
+
+func _choose_assigned_task_action() -> Vector2i:
 	var was_finished: bool = exploration_finished
 	exploration_finished = false
 	_refresh_cells_to_explore()
@@ -158,13 +191,19 @@ func confirm_move(action: Vector2i) -> void:
 	_remove_invalid_assigned_tasks()
 
 
-func resume_unfinished_exploration() -> void:
+func reset_task_allocation() -> void:
 	task_assignments.clear()
 	assignment_revisions.clear()
+	meeting_position = local_position
+	current_target = local_position
 	exploration_round_active = false
 	exploration_finished = false
 	waiting_log_emitted = false
 	_refresh_cells_to_explore()
+
+
+func resume_unfinished_exploration() -> void:
+	reset_task_allocation()
 	print(
 		"[RESUME] %s restarting frontier exploration; %d frontiers available."
 		% [name, cells_to_explore.size()]
@@ -312,15 +351,13 @@ func prepare_map_to_send() -> Dictionary:
 	return {
 		"local_position": local_position,
 		"local_map": local_map.duplicate(),
-		"explored_cells": explored_cells.keys(),
-		"task_assignments": task_assignments.duplicate(true),
-		"assignment_revisions": assignment_revisions.duplicate()
+		"explored_cells": explored_cells.keys()
 	}
 
 
-func recive_map_to_merge(sender: Agent, message: Dictionary) -> void:
+func recive_map_to_merge(sender: Agent, message: Dictionary) -> bool:
 	if not current_communication_array.has(sender) or message.is_empty():
-		return
+		return false
 
 	var sender_position_in_my_map: Vector2i = current_communication_array[sender]
 	var sender_local_position: Vector2i = message["local_position"]
@@ -342,12 +379,37 @@ func recive_map_to_merge(sender: Agent, message: Dictionary) -> void:
 			explored_cells[translated_position] = true
 			map_changed = true
 
+	_refresh_cells_to_explore()
+	if map_renderer != null:
+		map_renderer.queue_redraw()
+	return map_changed
+
+
+func prepare_cnp_message() -> Dictionary:
+	return {
+		"local_position": local_position,
+		"task_assignments": task_assignments.duplicate(true),
+		"assignment_revisions": assignment_revisions.duplicate()
+	}
+
+
+func receive_cnp_message(
+	sender: Agent,
+	message: Dictionary,
+	map_changed: bool,
+	force_allocation: bool = false
+) -> void:
+	if not current_communication_array.has(sender) or message.is_empty():
+		return
+
+	var sender_position_in_my_map: Vector2i = current_communication_array[sender]
+	var pivot_offset: Vector2i = sender_position_in_my_map - Vector2i(message["local_position"])
 	var assignment_changes := _merge_assignments_from_message(message, pivot_offset, sender)
 	_refresh_cells_to_explore()
 	_remove_invalid_assigned_tasks()
 
 	var is_new_contact: bool = new_contact_agents.has(sender)
-	if is_new_contact:
+	if is_new_contact or force_allocation:
 		meeting_position = (
 			sender_position_in_my_map
 			if sender.name < name
@@ -357,7 +419,7 @@ func recive_map_to_merge(sender: Agent, message: Dictionary) -> void:
 	if assignment_changes["pair_changed"]:
 		exploration_finished = false
 
-	if is_new_contact or map_changed or assignment_changes["other_changed"]:
+	if force_allocation or is_new_contact or map_changed or assignment_changes["other_changed"]:
 		_assign_remaining_tasks(sender, sender_position_in_my_map)
 
 	if map_renderer != null:

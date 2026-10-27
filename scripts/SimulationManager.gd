@@ -32,8 +32,13 @@ var waiting_for_map_coverage: bool = false
 
 var allow_cnp: bool = true
 var allow_communication: bool = true
+var cnp_needs_allocation: bool = true
 
 func _ready() -> void:
+	allow_cnp = cnp_button.button_pressed
+	allow_communication = communication_button.button_pressed or allow_cnp
+	communication_button.set_pressed_no_signal(allow_communication)
+
 	run_pause_button.disabled = true
 	step_button.disabled = true
 	
@@ -86,7 +91,9 @@ func initialize_agents() -> void:
 	
 	# échanger la carte avant partir
 	if allow_communication:
-		_exchange_agent_maps()
+		var map_changes: Dictionary = _exchange_agent_maps()
+		if allow_cnp:
+			_run_cnp(map_changes)
 	
 	#$StepTimer.start()
 	step_timer.stop()
@@ -174,19 +181,47 @@ func _update_agent_comunicate_array(agent: Agent) -> void:
 	agent.update_communication_array(communication_array)
 
 
-func _exchange_agent_maps() -> void:
+func _exchange_agent_maps() -> Dictionary:
+	if not allow_communication:
+		return {}
+
 	var map_messages: Dictionary = {}
+	var map_changes: Dictionary = {}
 	
 	# collecter toutes les carte local de tous les agents
 	for agent: Agent in agent_with_world_positions:
 		map_messages[agent] = agent.prepare_map_to_send()
+		map_changes[agent] = {}
 	
 	# envoyer la carte à agent dans le range de communication
 	for agent: Agent in agent_with_world_positions:
 		var message: Dictionary = map_messages[agent]
 		
 		for other_agent: Agent in agent.current_communication_array:
-			other_agent.recive_map_to_merge(agent, message)
+			map_changes[other_agent][agent] = other_agent.recive_map_to_merge(agent, message)
+
+	return map_changes
+
+
+func _run_cnp(map_changes: Dictionary) -> void:
+	if not allow_communication or not allow_cnp:
+		return
+
+	var cnp_messages: Dictionary = {}
+	for agent: Agent in agent_with_world_positions:
+		cnp_messages[agent] = agent.prepare_cnp_message()
+
+	for agent: Agent in agent_with_world_positions:
+		for other_agent: Agent in agent.current_communication_array:
+			var received_changes: Dictionary = map_changes.get(other_agent, {})
+			other_agent.receive_cnp_message(
+				agent,
+				cnp_messages[agent],
+				bool(received_changes.get(agent, false)),
+				cnp_needs_allocation
+			)
+
+	cnp_needs_allocation = false
 
 
 func _on_step_timer_timeout() -> void:
@@ -207,7 +242,7 @@ func step_simulation() -> void:
 		var perception_updated: bool = false
 
 		for _move_index in range(agent.speed):
-			var action: Vector2i = agent.choose_move_action()
+			var action: Vector2i = agent.choose_move_action(allow_communication and allow_cnp)
 			if action == Vector2i.ZERO:
 				break
 
@@ -243,7 +278,9 @@ func step_simulation() -> void:
 	
 	# échanger la carte entre les agents
 	if allow_communication:
-		_exchange_agent_maps()
+		var map_changes: Dictionary = _exchange_agent_maps()
+		if allow_cnp:
+			_run_cnp(map_changes)
 
 	all_finished = true
 	for agent: Agent in agent_with_world_positions:
@@ -270,6 +307,7 @@ func step_simulation() -> void:
 			)
 			for agent: Agent in agent_with_world_positions:
 				agent.resume_unfinished_exploration()
+			cnp_needs_allocation = true
 	elif waiting_for_map_coverage:
 		waiting_for_map_coverage = false
 
@@ -319,6 +357,7 @@ func _on_cnp_button_toggled(enabled: bool) -> void:
 		allow_communication = true
 		communication_button.set_pressed_no_signal(true)
 
+	_reset_cnp_state()
 	_update_control_buttons()
 
 
@@ -328,8 +367,16 @@ func _on_communication_button_toggled(enabled: bool) -> void:
 	if not enabled:
 		allow_cnp = false
 		cnp_button.set_pressed_no_signal(false)
+		_reset_cnp_state()
 
 	_update_control_buttons()
+
+
+func _reset_cnp_state() -> void:
+	for agent: Agent in agent_with_world_positions:
+		agent.reset_task_allocation()
+	cnp_needs_allocation = true
+	waiting_for_map_coverage = false
 
 
 func _update_control_buttons() -> void:
