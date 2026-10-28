@@ -81,6 +81,13 @@ text = "Step"
 layout_mode = 2
 text = "Reset"
 
+[node name="Label" type="Label" parent="UI" unique_id=1920890797]
+offset_left = 913.0
+offset_top = 287.0
+offset_right = 989.0
+offset_bottom = 310.0
+text = "Heat map"
+
 [node name="HeatMap" type="Node2D" parent="." unique_id=1821138963]
 script = ExtResource("6_kdubu")
 

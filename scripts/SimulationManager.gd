@@ -127,13 +127,23 @@ func _register_agent(agent: Agent, world_position: Vector2i, index: int) -> void
 	var renderer := AgentMapRenderer.new()
 	renderer.name = "Map_%s" % agent.name
 	renderer.label_text = str(agent.name)
+
+	# Transmettre la carte principale.
+	renderer.world_map = world
+
+	# Conserver la position initiale de l'agent sur la carte principale.
+	renderer.world_origin = world_position
+
 	var column: int = floori(index / 3.0)
 	var row: int = index % 3
+
 	renderer.position = Vector2(column * 300, row * 200)
+
 	agent_maps_root.add_child(renderer)
+
 	agent.map_renderer = renderer
 	renderer.setup(agent)
-	
+		
 	_update_agent_perception(agent)
 	_update_agent_display(agent)
 	
