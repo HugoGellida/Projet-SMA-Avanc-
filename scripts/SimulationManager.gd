@@ -18,13 +18,22 @@ extends Node2D
 @onready var cnp_button: CheckButton = $"../UI/ControlBar/CNPButton"
 @onready var communication_button: CheckButton = $"../UI/ControlBar/CommunicationButton"
 
+@onready var statistics_panel = $"../UI/SimulationStatistics"
+
 var simulation_finished: bool = false
 
 var agent_with_world_positions: Dictionary = {}
 
+# Cases découvertes directement par perception
+var directly_discovered_cells: Dictionary = {}
+
+# Cases apprises par au moins un agent grâce au partage de cartes.
+var merge_received_cells: Dictionary = {}
+
 var spawn_rng := RandomNumberGenerator.new()
 
 var simulation_step: int = 0
+var total_moves: int = 0
 var waiting_for_map_coverage: bool = false
 
 var allow_cnp: bool = true
@@ -106,6 +115,7 @@ func initialize_agents() -> void:
 	#$StepTimer.start()
 	step_timer.stop()
 	simulation_finished = false
+	statistics_panel.reset_timer()
 	_update_control_buttons()
 	
 	
@@ -163,8 +173,17 @@ func _update_agent_perception(agent: Agent) -> void:
 	var world_position: Vector2i = (agent_with_world_positions[agent])
 
 	var observation := world.get_observation(world_position, agent.vision_range)
-	
 	agent.perceive(observation)
+	
+	# Enregistrer les cases découvertes directement par perception.
+	for offset: Vector2i in observation:
+		var world_coord: Vector2i = world_position + offset
+		
+		if not world.is_inside_map(world_coord):
+			continue
+
+		# Enregistrer les cases découvertes directement par perception.
+		directly_discovered_cells[world_coord] = true
 
 
 func _update_agent_comunicate_array(agent: Agent) -> void:
@@ -202,9 +221,50 @@ func _exchange_agent_maps() -> Dictionary:
 		var message: Dictionary = map_messages[agent]
 		
 		for other_agent: Agent in agent.current_communication_array:
+			_register_merge_discoveries(other_agent, agent, message)
 			map_changes[other_agent][agent] = other_agent.recive_map_to_merge(agent, message)
 
 	return map_changes
+
+
+func _register_merge_discoveries(receiver: Agent, sender: Agent, message: Dictionary) -> void:
+	if message.is_empty():
+		return
+		
+	# Vérifier que le receiver connaît bien la position du sender.
+	if not receiver.current_communication_array.has(sender):
+		return
+
+	var sender_map: Dictionary = message["local_map"]
+
+	# Position de référence de la carte de l'agent qui envoie.
+	var sender_world_origin: Vector2i = (
+		agent_with_world_positions[sender] - sender.local_position
+	)
+
+	# Décalage permettant de convertir les coordonnées locales
+	# de l'agent sender vers celles de l'agent receiver.
+	var sender_position_in_my_map: Vector2i = receiver.current_communication_array[sender]
+	var sender_local_position: Vector2i = message["local_position"]
+	var pivot_offset: Vector2i = sender_position_in_my_map - sender_local_position
+
+	for sender_local_coord: Vector2i in sender_map:
+		var receiver_local_coord: Vector2i = sender_local_coord + pivot_offset
+
+		# La case est déjà connue par l'agent qui reçoit la carte.
+		if receiver.local_map.has(receiver_local_coord):
+			continue
+
+		# Conversion en coordonnées mondiales.
+		var world_coord: Vector2i = sender_world_origin + sender_local_coord
+
+		# Ignorer les coordonnées situées hors de la carte.
+		if not world.is_inside_map(world_coord):
+			continue
+
+		# Compter une seule fois chaque case mondiale nouvellement apprise par merge.
+		if not merge_received_cells.has(world_coord):
+			merge_received_cells[world_coord] = true
 
 
 func _run_cnp(map_changes: Dictionary) -> void:
@@ -265,6 +325,7 @@ func step_simulation() -> void:
 			else:
 				agent_with_world_positions[agent] = target
 				agent.confirm_move(action)
+				total_moves += 1
 				_update_agent_display(agent)
 				_update_heat_map(agent)
 				_update_agent_perception(agent)
@@ -291,6 +352,9 @@ func step_simulation() -> void:
 		if not agent.exploration_finished:
 			all_finished = false
 			break
+	
+	# Actualisation des statistiques affichées
+	_update_statistics_panel()
 
 	if all_finished:
 		var all_agent_maps_complete: bool = true
@@ -302,8 +366,10 @@ func step_simulation() -> void:
 		if all_agent_maps_complete:
 			simulation_finished = true
 			step_timer.stop()
+			statistics_panel.stop_timer()
 			_update_control_buttons()
 			print("Exploration finished! ")
+			_print_discovery_statistics()
 		elif not waiting_for_map_coverage:
 			waiting_for_map_coverage = true
 			push_warning(
@@ -314,7 +380,7 @@ func step_simulation() -> void:
 			cnp_needs_allocation = true
 	elif waiting_for_map_coverage:
 		waiting_for_map_coverage = false
-
+		
 
 func _get_missing_world_cells_count(agent: Agent) -> int:
 	var missing_count: int = 0
@@ -335,6 +401,7 @@ func _on_run_pause_button_pressed() -> void:
 		return
 
 	if step_timer.is_stopped():
+		statistics_panel.start_timer()
 		step_timer.start()
 	else:
 		step_timer.stop()
@@ -345,6 +412,8 @@ func _on_run_pause_button_pressed() -> void:
 func _on_step_button_pressed() -> void:
 	if simulation_finished or not step_timer.is_stopped():
 		return
+	
+	statistics_panel.start_timer()
 	step_simulation()
 	_update_control_buttons()
 
@@ -415,3 +484,62 @@ func _update_heat_map(agent: Agent) -> void:
 
 	heat_map.case_with_number[coord] += 1
 	heat_map_renderer.queue_redraw()
+
+
+func _print_discovery_statistics() -> void:
+	var map_size: int = world.size
+	var map_density: float = world.obstacle_density
+	var map_seed: int = world.seed
+
+	var direct_count: int = directly_discovered_cells.size()
+	var merge_count: int = merge_received_cells.size()
+
+	var total_map_cells: int = world.size * world.size
+	var merge_percentage: float = 0.0
+
+	if total_map_cells > 0:
+		merge_percentage = (
+			float(merge_count) / float(total_map_cells)
+		) * 100.0
+
+	var elapsed_time: String = statistics_panel.get_elapsed_time_string()
+
+	print("\n========== Simulation statistics ==========")
+	print("--- Map configuration ---")
+	print("Map size: ", map_size, " x ", map_size)
+	print("Obstacle density: %.2f" % map_density)
+	print("Map seed: ", map_seed)
+
+	print("--- Simulation results ---")
+	print("Direct discoveries: ", direct_count)
+	print("Merge discoveries: ", merge_count)
+	print("Merge contribution: %.2f%%" % merge_percentage)
+	print("Total movements: ", total_moves)
+	print("Simulation steps: ", simulation_step)
+	print("Elapsed time: ", elapsed_time)
+	print("Communication enabled: ", allow_communication)
+	print("CNP enabled: ", allow_cnp)
+	print("===========================================\n")
+
+
+func _update_statistics_panel() -> void:
+	var direct_count: int = directly_discovered_cells.size()
+	var merge_count: int = merge_received_cells.size()
+
+	var total_map_cells: int = world.size * world.size
+	var merge_percentage: float = 0.0
+
+	if total_map_cells > 0:
+		merge_percentage = (
+			float(merge_count) / float(total_map_cells)
+		) * 100.0
+
+	statistics_panel.show_statistics(
+		direct_count,
+		merge_count,
+		merge_percentage,
+		total_moves,
+		simulation_step,
+		allow_communication,
+		allow_cnp
+	)

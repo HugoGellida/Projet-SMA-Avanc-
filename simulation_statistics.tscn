@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://blksxyiiiuy1c"]
+
+[ext_resource type="Script" uid="uid://bjcy84kl5h3r3" path="res://scripts/simulation_statistics.gd" id="1_m72ok"]
+
+[node name="SimulationStatistics" type="Control" unique_id=1100748472]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_m72ok")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=529842557]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1394533253]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1323735355]
+layout_mode = 2
+
+[node name="TimerLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1383916395]
+layout_mode = 2
+
+[node name="DirectDiscoveriesLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=831397824]
+layout_mode = 2
+
+[node name="MergeDiscoveriesLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1590024512]
+layout_mode = 2
+
+[node name="TransferRateLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=2139712967]
+layout_mode = 2
+
+[node name="TotalMovementsLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1988677726]
+layout_mode = 2
+
+[node name="SimulationStepsLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=602506957]
+layout_mode = 2
+
+[node name="CommunicationLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1972314606]
+layout_mode = 2
+
+[node name="CNPLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1066964241]
+layout_mode = 2

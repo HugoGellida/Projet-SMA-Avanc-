@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dsdcm6nos8gqw" path="res://scripts/Map.gd" id="1_wtcfe"]
 [ext_resource type="Script" uid="uid://cyqvqjlvg0tpt" path="res://scripts/MapRenderer.gd" id="2_0e48y"]
 [ext_resource type="Script" uid="uid://dwp40gb2mvqjr" path="res://scripts/SimulationManager.gd" id="4_0hol4"]
+[ext_resource type="PackedScene" uid="uid://blksxyiiiuy1c" path="res://simulation_statistics.tscn" id="5_d21ai"]
 [ext_resource type="Script" uid="uid://cbjfiid1gxu4u" path="res://scripts/HeatMap.gd" id="6_kdubu"]
 [ext_resource type="Script" uid="uid://dlk1qwwwbn2xo" path="res://scripts/HeatMapRenderer.gd" id="7_d21ai"]
 [ext_resource type="Script" uid="uid://ds2cbu26jr2rm" path="res://scripts/AgentConfig.gd" id="8_config"]
@@ -39,7 +40,7 @@ tile_size = 25
 [node name="Agents" type="Node2D" parent="." unique_id=238102308]
 
 [node name="AgentMaps" type="Node2D" parent="." unique_id=864666743]
-position = Vector2(600, 100)
+position = Vector2(601, 115)
 
 [node name="SimulationManager" type="Node2D" parent="." unique_id=506008237]
 script = ExtResource("4_0hol4")
@@ -82,17 +83,23 @@ layout_mode = 2
 text = "Reset"
 
 [node name="Label" type="Label" parent="UI" unique_id=1920890797]
-offset_left = 913.0
-offset_top = 287.0
-offset_right = 989.0
-offset_bottom = 310.0
+offset_left = 986.0
+offset_top = 184.0
+offset_right = 1062.0
+offset_bottom = 207.0
 text = "Heat map"
+
+[node name="SimulationStatistics" parent="UI" unique_id=426640084 instance=ExtResource("5_d21ai")]
+offset_left = 892.0
+offset_top = 409.0
+offset_right = 932.0
+offset_bottom = 449.0
 
 [node name="HeatMap" type="Node2D" parent="." unique_id=1821138963]
 script = ExtResource("6_kdubu")
 
 [node name="HeatMapRenderer" type="Node2D" parent="." unique_id=1069816007]
-position = Vector2(853, 316)
+position = Vector2(927, 208)
 script = ExtResource("7_d21ai")
 
 [connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_step_timer_timeout"]

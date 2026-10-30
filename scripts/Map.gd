@@ -120,6 +120,9 @@ func generate_map():
 		rng.randomize()
 	else:
 		rng.seed = seed
+		
+	# On conserve la seed réellement utilisée
+	seed = rng.seed
 
 	biome_noise = FastNoiseLite.new()
 	biome_noise.noise_type = FastNoiseLite.TYPE_PERLIN
