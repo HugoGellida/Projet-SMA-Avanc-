@@ -19,6 +19,8 @@ extends Node2D
 @onready var restart_button: Button = %RestartButton
 @onready var cnp_button: CheckButton = %CNPButton
 @onready var communication_button: CheckButton = %CommunicationButton
+@onready var settings_button: Button = %SettingsButton
+@onready var settings_dialog: SimulationSettingsDialog = %SettingsDialog
 
 @onready var statistics_panel: SimulationStatistics = %SimulationStatistics
 
@@ -55,6 +57,8 @@ func _ready() -> void:
 	restart_button.pressed.connect(_on_restart_button_pressed)
 	cnp_button.toggled.connect(_on_cnp_button_toggled)
 	communication_button.toggled.connect(_on_communication_button_toggled)
+	settings_button.pressed.connect(_on_settings_button_pressed)
+	settings_dialog.configuration_submitted.connect(_on_configuration_submitted)
 		
 	call_deferred("initialize_agents")
 	
@@ -73,18 +77,21 @@ func initialize_agents() -> void:
 	var agents: Array[Agent] = []
 
 	if agent_configs.is_empty():
-		push_warning("no configuration found.")
+		_show_configuration_error("Add at least one agent in Settings.")
 		return
 
 	for config: AgentConfig in agent_configs:
 		if config == null:
-			push_error("agent configuration is empty.")
+			_show_configuration_error("An agent configuration is empty. Open Settings to complete it.")
 			return
 
 	var free_cells := _get_free_cells()
 
 	if free_cells.size() < agent_configs.size():
-		push_error("Not enough place.")
+		_show_configuration_error(
+			"Only %d free cells are available for %d agents. Reduce the agent count or obstacle density."
+			% [free_cells.size(), agent_configs.size()]
+		)
 		return
 
 	agent_with_world_positions.clear()
@@ -125,6 +132,7 @@ func initialize_agents() -> void:
 	statistics_panel.reset_timer()
 	_update_control_buttons()
 	_update_statistics_panel()
+	SimulationSession.complete_loading()
 	
 	
 
@@ -285,8 +293,9 @@ func _on_step_timer_timeout() -> void:
 	
 
 func step_simulation() -> void:
-	if simulation_finished or agent_with_world_positions.is_empty():
+	if SimulationSession.is_loading or simulation_finished or agent_with_world_positions.is_empty():
 		return
+	_lock_configuration()
 		
 	simulation_step += 1
 	var all_finished: bool = true
@@ -389,10 +398,11 @@ func _get_missing_world_cells_count(agent: Agent) -> int:
 
 
 func _on_run_pause_button_pressed() -> void:
-	if simulation_finished:
+	if SimulationSession.is_loading or simulation_finished or agent_with_world_positions.is_empty() or settings_dialog.visible:
 		return
 
 	if step_timer.is_stopped():
+		_lock_configuration()
 		statistics_panel.start_timer()
 		step_timer.start()
 	else:
@@ -403,7 +413,7 @@ func _on_run_pause_button_pressed() -> void:
 
 
 func _on_step_button_pressed() -> void:
-	if simulation_finished or not step_timer.is_stopped():
+	if SimulationSession.is_loading or simulation_finished or not step_timer.is_stopped() or settings_dialog.visible:
 		return
 	
 	statistics_panel.start_timer()
@@ -413,8 +423,41 @@ func _on_step_button_pressed() -> void:
 
 
 func _on_restart_button_pressed() -> void:
+	_reload_simulation("Restarting simulation…")
+
+
+func _reload_simulation(message: String) -> void:
+	if SimulationSession.is_loading:
+		return
 	step_timer.stop()
-	get_tree().reload_current_scene()
+	statistics_panel.stop_timer()
+	SimulationSession.reload_simulation(message)
+
+
+func _on_settings_button_pressed() -> void:
+	if not SimulationSession.is_loading and not SimulationSession.configuration_locked:
+		settings_dialog.open_settings(SimulationSession.current_config)
+
+
+func _on_configuration_submitted(config: SimulationConfig) -> void:
+	var error: String = SimulationSession.apply_config(config)
+	if not error.is_empty():
+		settings_dialog.show_error(error)
+		return
+	settings_dialog.hide()
+	_reload_simulation("Applying configuration…")
+
+
+func _lock_configuration() -> void:
+	SimulationSession.lock_configuration()
+	settings_button.disabled = true
+
+
+func _show_configuration_error(message: String) -> void:
+	_update_control_buttons()
+	settings_dialog.open_settings(SimulationSession.current_config)
+	settings_dialog.show_error(message)
+	SimulationSession.complete_loading()
 
 
 func _on_cnp_button_toggled(enabled: bool) -> void:
@@ -425,6 +468,7 @@ func _on_cnp_button_toggled(enabled: bool) -> void:
 		communication_button.set_pressed_no_signal(true)
 
 	_reset_cnp_state()
+	SimulationSession.update_protocol_options(allow_communication, allow_cnp)
 	_update_control_buttons()
 
 
@@ -436,6 +480,7 @@ func _on_communication_button_toggled(enabled: bool) -> void:
 		cnp_button.set_pressed_no_signal(false)
 		_reset_cnp_state()
 
+	SimulationSession.update_protocol_options(allow_communication, allow_cnp)
 	_update_control_buttons()
 
 
@@ -447,6 +492,7 @@ func _reset_cnp_state() -> void:
 
 
 func _update_control_buttons() -> void:
+	settings_button.disabled = SimulationSession.configuration_locked
 	if agent_with_world_positions.is_empty():
 		run_pause_button.disabled = true
 		step_button.disabled = true

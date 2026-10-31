@@ -2,7 +2,7 @@ extends Node2D
 class_name Map
 
 @export var size: int = 20
-@export_range(0.0, 0.6)
+@export_range(0.0, 1.0)
 var obstacle_density: float = 0.9
 
 @export var seed: int = 12345
