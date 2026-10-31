@@ -5,20 +5,22 @@ extends Node2D
 @export var agent_configs: Array[AgentConfig] = []
 
 @onready var world: Map = $"../Map"
-@onready var map_renderer: MapRenderer = $"../MapRenderer"
-@onready var agents_root: Node2D = $"../Agents"
-@onready var agent_maps_root: Node2D = $"../AgentMaps"
+@onready var map_renderer: MapRenderer = %MapRenderer
+@onready var agents_root: Node2D = %Agents
+@onready var agent_maps_root: GridContainer = %AgentMaps
 @onready var heat_map: HeatMap = $"../HeatMap"
-@onready var heat_map_renderer: HeatMapRenderer = $"../HeatMapRenderer"
+@onready var heat_map_renderer: HeatMapRenderer = %HeatMapRenderer
+@onready var world_map_view: MapViewport = %WorldMapViewport
+@onready var heat_map_view: MapViewport = %HeatMapViewport
 
 @onready var step_timer: Timer = $StepTimer
-@onready var run_pause_button: Button = $"../UI/ControlBar/RunPauseButton"
-@onready var step_button: Button = $"../UI/ControlBar/StepButton"
-@onready var restart_button: Button = $"../UI/ControlBar/RestartButton"
-@onready var cnp_button: CheckButton = $"../UI/ControlBar/CNPButton"
-@onready var communication_button: CheckButton = $"../UI/ControlBar/CommunicationButton"
+@onready var run_pause_button: Button = %RunPauseButton
+@onready var step_button: Button = %StepButton
+@onready var restart_button: Button = %RestartButton
+@onready var cnp_button: CheckButton = %CNPButton
+@onready var communication_button: CheckButton = %CommunicationButton
 
-@onready var statistics_panel = $"../UI/SimulationStatistics"
+@onready var statistics_panel: SimulationStatistics = %SimulationStatistics
 
 var simulation_finished: bool = false
 
@@ -58,6 +60,11 @@ func _ready() -> void:
 	
 
 func initialize_agents() -> void:
+	world_map_view.set_map_size(Vector2.ONE * world.size * map_renderer.tile_size)
+	heat_map_view.set_map_size(Vector2.ONE * world.size * heat_map_renderer.tile_size)
+	%MapSizeLabel.text = "%d × %d" % [world.size, world.size]
+	%AgentCountLabel.text = "%d agents" % agent_configs.size()
+
 	if randomize_spawn:
 		spawn_rng.randomize()
 	else:
@@ -99,7 +106,7 @@ func initialize_agents() -> void:
 		free_cells[index] = free_cells[free_cells.size() - 1]
 		free_cells.pop_back()
 
-		_register_agent(agent, spawn_position, i)
+		_register_agent(agent, spawn_position)
 	
 	# mise à jour le communication array pour tous les agent après la registation
 	for agent in agents:
@@ -117,6 +124,7 @@ func initialize_agents() -> void:
 	simulation_finished = false
 	statistics_panel.reset_timer()
 	_update_control_buttons()
+	_update_statistics_panel()
 	
 	
 
@@ -130,29 +138,13 @@ func _get_free_cells() -> Array[Vector2i]:
 	return free_cells
 
 
-func _register_agent(agent: Agent, world_position: Vector2i, index: int) -> void:
+func _register_agent(agent: Agent, world_position: Vector2i) -> void:
 	agent_with_world_positions[agent] = world_position
 	agent.initialize(float(map_renderer.tile_size))
 
-	var renderer := AgentMapRenderer.new()
-	renderer.name = "Map_%s" % agent.name
-	renderer.label_text = str(agent.name)
-
-	# Transmettre la carte principale.
-	renderer.world_map = world
-
-	# Conserver la position initiale de l'agent sur la carte principale.
-	renderer.world_origin = world_position
-
-	var column: int = floori(index / 3.0)
-	var row: int = index % 3
-
-	renderer.position = Vector2(column * 300, row * 200)
-
-	agent_maps_root.add_child(renderer)
-
-	agent.map_renderer = renderer
-	renderer.setup(agent)
+	var map_card := AgentMapCard.new()
+	agent_maps_root.add_child(map_card)
+	agent.map_renderer = map_card.setup(agent, world, world_position)
 		
 	_update_agent_perception(agent)
 	_update_agent_display(agent)
@@ -405,6 +397,7 @@ func _on_run_pause_button_pressed() -> void:
 		step_timer.start()
 	else:
 		step_timer.stop()
+		statistics_panel.stop_timer()
 
 	_update_control_buttons()
 
@@ -415,6 +408,7 @@ func _on_step_button_pressed() -> void:
 	
 	statistics_panel.start_timer()
 	step_simulation()
+	statistics_panel.stop_timer()
 	_update_control_buttons()
 
 

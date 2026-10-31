@@ -2,44 +2,103 @@
 
 [ext_resource type="Script" uid="uid://bjcy84kl5h3r3" path="res://scripts/simulation_statistics.gd" id="1_m72ok"]
 
-[node name="SimulationStatistics" type="Control" unique_id=1100748472]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="SimulationStatistics" type="PanelContainer"]
+custom_minimum_size = Vector2(286, 0)
+size_flags_horizontal = 3
 script = ExtResource("1_m72ok")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=529842557]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1394533253]
+[node name="Content" type="VBoxContainer" parent="."]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="TitleLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1323735355]
+[node name="TitleLabel" type="Label" parent="Content"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Statistics"
 
-[node name="TimerLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1383916395]
+[node name="Values" type="GridContainer" parent="Content"]
 layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 4
+columns = 2
 
-[node name="DirectDiscoveriesLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=831397824]
+[node name="ElapsedTimeLabel" type="Label" parent="Content/Values"]
 layout_mode = 2
+size_flags_horizontal = 3
+text = "Elapsed time"
 
-[node name="MergeDiscoveriesLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1590024512]
+[node name="ElapsedTimeValue" type="Label" parent="Content/Values"]
 layout_mode = 2
+text = "00:00:00"
+horizontal_alignment = 2
 
-[node name="TransferRateLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=2139712967]
+[node name="SimulationStepsLabel" type="Label" parent="Content/Values"]
 layout_mode = 2
+size_flags_horizontal = 3
+text = "Simulation steps"
 
-[node name="TotalMovementsLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1988677726]
+[node name="SimulationStepsValue" type="Label" parent="Content/Values"]
 layout_mode = 2
+text = "0"
+horizontal_alignment = 2
 
-[node name="SimulationStepsLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=602506957]
+[node name="TotalMovementsLabel" type="Label" parent="Content/Values"]
 layout_mode = 2
+size_flags_horizontal = 3
+text = "Total movements"
 
-[node name="CommunicationLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1972314606]
+[node name="TotalMovementsValue" type="Label" parent="Content/Values"]
 layout_mode = 2
+text = "0"
+horizontal_alignment = 2
 
-[node name="CNPLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1066964241]
+[node name="DirectDiscoveriesLabel" type="Label" parent="Content/Values"]
 layout_mode = 2
+size_flags_horizontal = 3
+text = "Directly sensed"
+
+[node name="DirectDiscoveriesValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="MergeDiscoveriesLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Learned via merge"
+
+[node name="MergeDiscoveriesValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="MergeContributionLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Merge contribution"
+
+[node name="MergeContributionValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "0.00%"
+horizontal_alignment = 2
+
+[node name="CommunicationLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Communication"
+
+[node name="CommunicationValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "Enabled"
+horizontal_alignment = 2
+
+[node name="CNPLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CNP"
+
+[node name="CNPValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "Enabled"
+horizontal_alignment = 2

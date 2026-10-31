@@ -12,7 +12,7 @@ var content: Array[Tile] = []
 var rng: RandomNumberGenerator
 var biome_noise: FastNoiseLite
 
-@onready var renderer: MapRenderer = $"../MapRenderer"
+@onready var renderer: MapRenderer = %MapRenderer
 
 func get_biome(noise_value: float) -> String:
 	if noise_value < -0.2:
@@ -111,6 +111,12 @@ func is_fully_explorable() -> bool:
 func _ready():
 	generate_map()
 	renderer.setup(self)
+
+
+func _exit_tree() -> void:
+	for tile: Tile in content:
+		tile.free()
+	content.clear()
 
 
 func generate_map():

@@ -4,8 +4,8 @@ class_name HeatMapRenderer
 @export var tile_size: int = 10
 @export_range(1, 100, 1) var max_heat_visits: int = 10
 
-@onready var heat_map: HeatMap = $"../HeatMap"
-@onready var world_map: Map = $"../Map"
+@onready var heat_map: HeatMap = %HeatMap
+@onready var world_map: Map = %Map
 
 
 func _draw() -> void:
