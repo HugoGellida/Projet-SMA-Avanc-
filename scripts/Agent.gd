@@ -32,6 +32,8 @@ var assignment_revisions: Dictionary = {}
 var map_renderer: AgentMapRenderer
 var display_radius: float = 3.5
 var current_target: Vector2i = Vector2i.ZERO
+var patrol_target: Vector2i = Vector2i.ZERO
+var patrol_rng := RandomNumberGenerator.new()
 var current_communication_array: Dictionary = {}
 var new_contact_agents: Dictionary = {}
 var meeting_position: Vector2i = Vector2i.ZERO
@@ -42,6 +44,8 @@ var waiting_log_emitted: bool = false
 func initialize(tile_size: float) -> void:
 	local_position = Vector2i.ZERO
 	current_target = local_position
+	patrol_target = local_position
+	patrol_rng.seed = name.hash()
 	local_map.clear()
 	cells_to_explore.clear()
 	explored_cells.clear()
@@ -72,10 +76,33 @@ func _get_agent_color() -> Color:
 	return display_color
 
 
-func choose_move_action(use_cnp: bool = true) -> Vector2i:
+func choose_move_action(use_cnp: bool = true, allow_patrol: bool = true) -> Vector2i:
+	_refresh_cells_to_explore()
+	if allow_patrol and cells_to_explore.is_empty():
+		return _choose_patrol_action()
+
+	patrol_target = local_position
 	if use_cnp:
 		return _choose_assigned_task_action()
 	return _choose_nearest_frontier_action()
+
+
+func _choose_patrol_action() -> Vector2i:
+	exploration_finished = false
+	if patrol_target == local_position:
+		var distances: Dictionary = _get_distances_from(local_position)
+		var destinations: Array[Vector2i] = []
+		for destination: Vector2i in distances:
+			if destination != local_position:
+				destinations.append(destination)
+		if destinations.is_empty():
+			current_target = local_position
+			return Vector2i.ZERO
+		var index: int = patrol_rng.randi_range(0, destinations.size() - 1)
+		patrol_target = destinations[index]
+
+	current_target = patrol_target
+	return _get_next_step_toward(current_target)
 
 
 func _choose_nearest_frontier_action() -> Vector2i:

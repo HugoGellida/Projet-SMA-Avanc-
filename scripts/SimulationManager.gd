@@ -307,7 +307,10 @@ func step_simulation() -> void:
 		var perception_updated: bool = false
 
 		for _move_index in range(agent.speed):
-			var action: Vector2i = agent.choose_move_action(allow_communication and allow_cnp)
+			var action: Vector2i = agent.choose_move_action(
+				allow_communication and allow_cnp,
+				allow_communication
+			)
 			if action == Vector2i.ZERO:
 				break
 
@@ -357,21 +360,21 @@ func step_simulation() -> void:
 	# Actualisation des statistiques affichées
 	_update_statistics_panel()
 
-	if all_finished:
-		var all_agent_maps_complete: bool = true
-		for agent: Agent in agent_with_world_positions:
-			if _get_missing_world_cells_count(agent) > 0:
-				all_agent_maps_complete = false
-				break
+	var all_agent_maps_complete: bool = true
+	for agent: Agent in agent_with_world_positions:
+		if _get_missing_world_cells_count(agent) > 0:
+			all_agent_maps_complete = false
+			break
 
-		if all_agent_maps_complete:
-			simulation_finished = true
-			step_timer.stop()
-			statistics_panel.stop_timer()
-			_update_control_buttons()
-			print("Exploration finished! ")
-			_print_discovery_statistics()
-		elif not waiting_for_map_coverage:
+	if all_agent_maps_complete:
+		simulation_finished = true
+		step_timer.stop()
+		statistics_panel.stop_timer()
+		_update_control_buttons()
+		print("Exploration finished! ")
+		_print_discovery_statistics()
+	elif all_finished:
+		if not waiting_for_map_coverage:
 			waiting_for_map_coverage = true
 			push_warning(
 				"Agents are idle, but at least one map is incomplete; restarting frontier exploration."
