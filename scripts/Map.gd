@@ -2,17 +2,17 @@ extends Node2D
 class_name Map
 
 @export var size: int = 20
-@export_range(0.0, 0.6)
+@export_range(0.0, 1.0)
 var obstacle_density: float = 0.9
 
-@export var seed: int = 666
+@export var seed: int = 12345
 @export var randomize_seed: bool = false
 
 var content: Array[Tile] = []
 var rng: RandomNumberGenerator
 var biome_noise: FastNoiseLite
 
-@onready var renderer: MapRenderer = $"../MapRenderer"
+@onready var renderer: MapRenderer = %MapRenderer
 
 func get_biome(noise_value: float) -> String:
 	if noise_value < -0.2:
@@ -113,6 +113,12 @@ func _ready():
 	renderer.setup(self)
 
 
+func _exit_tree() -> void:
+	for tile: Tile in content:
+		tile.free()
+	content.clear()
+
+
 func generate_map():
 	rng = RandomNumberGenerator.new()
 
@@ -120,6 +126,9 @@ func generate_map():
 		rng.randomize()
 	else:
 		rng.seed = seed
+		
+	# On conserve la seed réellement utilisée
+	seed = rng.seed
 
 	biome_noise = FastNoiseLite.new()
 	biome_noise.noise_type = FastNoiseLite.TYPE_PERLIN

@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://blksxyiiiuy1c"]
+
+[ext_resource type="Script" uid="uid://bjcy84kl5h3r3" path="res://scripts/simulation_statistics.gd" id="1_m72ok"]
+
+[node name="SimulationStatistics" type="PanelContainer"]
+custom_minimum_size = Vector2(286, 0)
+size_flags_horizontal = 3
+script = ExtResource("1_m72ok")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Statistics"
+
+[node name="Values" type="GridContainer" parent="Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="ElapsedTimeLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Elapsed time"
+
+[node name="ElapsedTimeValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "00:00:00"
+horizontal_alignment = 2
+
+[node name="SimulationStepsLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Simulation steps"
+
+[node name="SimulationStepsValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="TotalMovementsLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Total movements"
+
+[node name="TotalMovementsValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="DirectDiscoveriesLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Directly sensed"
+
+[node name="DirectDiscoveriesValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="MergeDiscoveriesLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Learned via merge"
+
+[node name="MergeDiscoveriesValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="MergeContributionLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Merge contribution"
+
+[node name="MergeContributionValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "0.00%"
+horizontal_alignment = 2
+
+[node name="CommunicationLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Communication"
+
+[node name="CommunicationValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "Enabled"
+horizontal_alignment = 2
+
+[node name="CNPLabel" type="Label" parent="Content/Values"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CNP"
+
+[node name="CNPValue" type="Label" parent="Content/Values"]
+layout_mode = 2
+text = "Enabled"
+horizontal_alignment = 2

@@ -2,41 +2,293 @@
 
 [ext_resource type="Script" uid="uid://dsdcm6nos8gqw" path="res://scripts/Map.gd" id="1_wtcfe"]
 [ext_resource type="Script" uid="uid://cyqvqjlvg0tpt" path="res://scripts/MapRenderer.gd" id="2_0e48y"]
-[ext_resource type="Script" uid="uid://ehctiehj3fvu" path="res://scripts/Agent.gd" id="3_epypp"]
 [ext_resource type="Script" uid="uid://dwp40gb2mvqjr" path="res://scripts/SimulationManager.gd" id="4_0hol4"]
-[ext_resource type="Script" uid="uid://ctw2f6283qdi8" path="res://scripts/AgentMapRenderer.gd" id="4_q6r6c"]
+[ext_resource type="PackedScene" uid="uid://blksxyiiiuy1c" path="res://simulation_statistics.tscn" id="5_d21ai"]
+[ext_resource type="Script" uid="uid://cbjfiid1gxu4u" path="res://scripts/HeatMap.gd" id="6_kdubu"]
+[ext_resource type="Script" uid="uid://dlk1qwwwbn2xo" path="res://scripts/HeatMapRenderer.gd" id="7_d21ai"]
+[ext_resource type="Script" uid="uid://ds2cbu26jr2rm" path="res://scripts/AgentConfig.gd" id="8_config"]
+
+[ext_resource type="Script" path="res://scripts/MapViewport.gd" id="9_viewport"]
+[ext_resource type="Script" path="res://scripts/SimulationInterface.gd" id="10_interface"]
+[ext_resource type="Script" path="res://scripts/SimulationRoot.gd" id="11_root"]
+[ext_resource type="Script" path="res://scripts/SimulationSettingsDialog.gd" id="12_settings"]
+
+[sub_resource type="Resource" id="Resource_agent_1"]
+resource_name = "Agent 1"
+script = ExtResource("8_config")
+speed = 2
+
+[sub_resource type="Resource" id="Resource_agent_2"]
+resource_name = "Agent 2"
+script = ExtResource("8_config")
+color = Color(0, 0.7490196, 1, 1)
+
+[sub_resource type="Resource" id="Resource_agent_3"]
+resource_name = "Agent 3"
+script = ExtResource("8_config")
+color = Color(1, 0.84313726, 0, 1)
+
+[sub_resource type="Resource" id="Resource_agent_4"]
+resource_name = "Agent 4"
+script = ExtResource("8_config")
+color = Color(0.19607843, 0.8039216, 0.19607843, 1)
 
 [node name="Node2D" type="Node2D" unique_id=1587768246]
+script = ExtResource("11_root")
 
 [node name="Map" type="Node2D" parent="." unique_id=229854672]
+unique_name_in_owner = true
 script = ExtResource("1_wtcfe")
 
-[node name="MapRenderer" type="Node2D" parent="." unique_id=1855577675]
-script = ExtResource("2_0e48y")
-tile_size = 25
-
-[node name="Agents" type="Node2D" parent="." unique_id=238102308]
-
-[node name="Agent" type="Node2D" parent="Agents" unique_id=665319151]
-script = ExtResource("3_epypp")
-vision_range = null
-communication_range = null
-
-[node name="Agent2" type="Node2D" parent="Agents" unique_id=1560334558]
-script = ExtResource("3_epypp")
-vision_range = null
-communication_range = null
+[node name="HeatMap" type="Node2D" parent="." unique_id=1821138963]
+unique_name_in_owner = true
+script = ExtResource("6_kdubu")
 
 [node name="SimulationManager" type="Node2D" parent="." unique_id=506008237]
 script = ExtResource("4_0hol4")
+agent_configs = Array[ExtResource("8_config")]([SubResource("Resource_agent_1"), SubResource("Resource_agent_2"), SubResource("Resource_agent_3"), SubResource("Resource_agent_4")])
 
 [node name="StepTimer" type="Timer" parent="SimulationManager" unique_id=1583313914]
-wait_time = 0.2
+wait_time = 0.06
 
-[node name="AgentMapRenderer1" type="Node2D" parent="." unique_id=1964554567]
-script = ExtResource("4_q6r6c")
+[node name="UI" type="CanvasLayer" parent="." unique_id=76264809]
 
-[node name="AgentMapRenderer2" type="Node2D" parent="." unique_id=1611929928]
-script = ExtResource("4_q6r6c")
+[node name="Screen" type="MarginContainer" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+script = ExtResource("10_interface")
 
-[connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_setp_timer_timeout"]
+[node name="Layout" type="VBoxContainer" parent="UI/Screen"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Toolbar" type="PanelContainer" parent="UI/Screen/Layout"]
+layout_mode = 2
+
+[node name="ControlBar" type="HBoxContainer" parent="UI/Screen/Layout/Toolbar"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ApplicationTitle" type="Label" parent="UI/Screen/Layout/Toolbar/ControlBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "Multi-agent exploration"
+
+[node name="SettingsButton" type="Button" parent="UI/Screen/Layout/Toolbar/ControlBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Settings"
+tooltip_text = "Configure the next run before Start or Step"
+
+[node name="CommunicationButton" type="CheckButton" parent="UI/Screen/Layout/Toolbar/ControlBar" unique_id=1482315208]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Communication"
+
+[node name="CNPButton" type="CheckButton" parent="UI/Screen/Layout/Toolbar/ControlBar" unique_id=467459337]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "CNP"
+
+[node name="RunPauseButton" type="Button" parent="UI/Screen/Layout/Toolbar/ControlBar" unique_id=344935116]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Start"
+
+[node name="StepButton" type="Button" parent="UI/Screen/Layout/Toolbar/ControlBar" unique_id=1205743827]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Step"
+
+[node name="RestartButton" type="Button" parent="UI/Screen/Layout/Toolbar/ControlBar" unique_id=1769873912]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reset"
+
+[node name="MainContent" type="HBoxContainer" parent="UI/Screen/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="WorldPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent"]
+custom_minimum_size = Vector2(450, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.9
+
+[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/WorldPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/WorldPanel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "Global map"
+
+[node name="MapSizeLabel" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "20 × 20"
+
+[node name="ZoomLevelLabel" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="ZoomOutButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "−"
+tooltip_text = "Zoom out"
+
+[node name="ZoomInButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+"
+tooltip_text = "Zoom in"
+
+[node name="FitMapButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Fit"
+tooltip_text = "Show the complete map"
+
+[node name="WorldMapViewport" type="Control" parent="UI/Screen/Layout/MainContent/WorldPanel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_vertical = 3
+clip_contents = true
+script = ExtResource("9_viewport")
+
+[node name="MapContent" type="Node2D" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/WorldMapViewport"]
+
+[node name="MapRenderer" type="Node2D" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/WorldMapViewport/MapContent" unique_id=1855577675]
+unique_name_in_owner = true
+script = ExtResource("2_0e48y")
+tile_size = 25
+
+[node name="Agents" type="Node2D" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/WorldMapViewport/MapContent" unique_id=238102308]
+unique_name_in_owner = true
+
+[node name="NavigationHint" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.71, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "Scroll: zoom    Drag: pan    F: fit"
+
+[node name="DetailsColumn" type="VBoxContainer" parent="UI/Screen/Layout/MainContent"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.1
+theme_override_constants/separation = 16
+
+[node name="SummaryRow" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn"]
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SimulationStatistics" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow" unique_id=426640084 instance=ExtResource("5_d21ai")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+
+[node name="HeatMapPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Visit heat map"
+
+[node name="HeatMapViewport" type="Control" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+size_flags_vertical = 3
+clip_contents = true
+script = ExtResource("9_viewport")
+interactive = false
+
+[node name="MapContent" type="Node2D" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content/HeatMapViewport"]
+
+[node name="HeatMapRenderer" type="Node2D" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content/HeatMapViewport/MapContent" unique_id=1069816007]
+unique_name_in_owner = true
+script = ExtResource("7_d21ai")
+
+[node name="HeatMapLegend" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.71, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "White: 0    Orange-red: 10+ visits"
+
+[node name="AgentPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "Agent maps"
+
+[node name="AgentCountLabel" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "4 agents"
+
+[node name="AgentScroll" type="ScrollContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+follow_focus = true
+
+[node name="AgentMaps" type="GridContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content/AgentScroll" unique_id=864666743]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="SettingsDialog" type="Window" parent="UI"]
+unique_name_in_owner = true
+visible = false
+script = ExtResource("12_settings")
+
+[connection signal="timeout" from="SimulationManager/StepTimer" to="SimulationManager" method="_on_step_timer_timeout"]
