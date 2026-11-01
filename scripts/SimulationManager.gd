@@ -1,6 +1,6 @@
 extends Node2D
 
-@export var spawn_seed: int = 12345
+@export var spawn_seed: int = 42
 @export var randomize_spawn: bool = false
 @export var agent_configs: Array[AgentConfig] = []
 

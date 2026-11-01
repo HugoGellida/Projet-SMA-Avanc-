@@ -7,11 +7,10 @@
 [ext_resource type="Script" uid="uid://cbjfiid1gxu4u" path="res://scripts/HeatMap.gd" id="6_kdubu"]
 [ext_resource type="Script" uid="uid://dlk1qwwwbn2xo" path="res://scripts/HeatMapRenderer.gd" id="7_d21ai"]
 [ext_resource type="Script" uid="uid://ds2cbu26jr2rm" path="res://scripts/AgentConfig.gd" id="8_config"]
-
-[ext_resource type="Script" path="res://scripts/MapViewport.gd" id="9_viewport"]
-[ext_resource type="Script" path="res://scripts/SimulationInterface.gd" id="10_interface"]
-[ext_resource type="Script" path="res://scripts/SimulationRoot.gd" id="11_root"]
-[ext_resource type="Script" path="res://scripts/SimulationSettingsDialog.gd" id="12_settings"]
+[ext_resource type="Script" uid="uid://jdqkwalb88a7" path="res://scripts/MapViewport.gd" id="9_viewport"]
+[ext_resource type="Script" uid="uid://bw6nyrtmsfb71" path="res://scripts/SimulationInterface.gd" id="10_interface"]
+[ext_resource type="Script" uid="uid://5oevux381ox1" path="res://scripts/SimulationRoot.gd" id="11_root"]
+[ext_resource type="Script" uid="uid://ct7vpven5qqoq" path="res://scripts/SimulationSettingsDialog.gd" id="12_settings"]
 
 [sub_resource type="Resource" id="Resource_agent_1"]
 resource_name = "Agent 1"
@@ -53,7 +52,7 @@ wait_time = 0.06
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=76264809]
 
-[node name="Screen" type="MarginContainer" parent="UI"]
+[node name="Screen" type="MarginContainer" parent="UI" unique_id=1014261530]
 unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
@@ -66,28 +65,28 @@ theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 script = ExtResource("10_interface")
 
-[node name="Layout" type="VBoxContainer" parent="UI/Screen"]
+[node name="Layout" type="VBoxContainer" parent="UI/Screen" unique_id=1327510437]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Toolbar" type="PanelContainer" parent="UI/Screen/Layout"]
+[node name="Toolbar" type="PanelContainer" parent="UI/Screen/Layout" unique_id=739095370]
 layout_mode = 2
 
-[node name="ControlBar" type="HBoxContainer" parent="UI/Screen/Layout/Toolbar"]
+[node name="ControlBar" type="HBoxContainer" parent="UI/Screen/Layout/Toolbar" unique_id=1955078274]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="ApplicationTitle" type="Label" parent="UI/Screen/Layout/Toolbar/ControlBar"]
+[node name="ApplicationTitle" type="Label" parent="UI/Screen/Layout/Toolbar/ControlBar" unique_id=1371345583]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "Multi-agent exploration"
 
-[node name="SettingsButton" type="Button" parent="UI/Screen/Layout/Toolbar/ControlBar"]
+[node name="SettingsButton" type="Button" parent="UI/Screen/Layout/Toolbar/ControlBar" unique_id=1585985190]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Settings"
 tooltip_text = "Configure the next run before Start or Step"
+text = "Settings"
 
 [node name="CommunicationButton" type="CheckButton" parent="UI/Screen/Layout/Toolbar/ControlBar" unique_id=1482315208]
 unique_name_in_owner = true
@@ -116,70 +115,70 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Reset"
 
-[node name="MainContent" type="HBoxContainer" parent="UI/Screen/Layout"]
+[node name="MainContent" type="HBoxContainer" parent="UI/Screen/Layout" unique_id=551373887]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 16
 
-[node name="WorldPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent"]
+[node name="WorldPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent" unique_id=2011452878]
 custom_minimum_size = Vector2(450, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.9
 
-[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/WorldPanel"]
+[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/WorldPanel" unique_id=1703564634]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Header" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/WorldPanel/Content"]
+[node name="Header" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/WorldPanel/Content" unique_id=1614729835]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header" unique_id=242908636]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Global map"
 
-[node name="MapSizeLabel" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+[node name="MapSizeLabel" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header" unique_id=1214269729]
 unique_name_in_owner = true
 layout_mode = 2
 text = "20 × 20"
 
-[node name="ZoomLevelLabel" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+[node name="ZoomLevelLabel" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header" unique_id=362755817]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 text = "100%"
 horizontal_alignment = 2
 
-[node name="ZoomOutButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+[node name="ZoomOutButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header" unique_id=1489852786]
 unique_name_in_owner = true
 layout_mode = 2
-text = "−"
 tooltip_text = "Zoom out"
+text = "−"
 
-[node name="ZoomInButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+[node name="ZoomInButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header" unique_id=1150090978]
 unique_name_in_owner = true
 layout_mode = 2
-text = "+"
 tooltip_text = "Zoom in"
+text = "+"
 
-[node name="FitMapButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header"]
+[node name="FitMapButton" type="Button" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/Header" unique_id=626076271]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Fit"
 tooltip_text = "Show the complete map"
+text = "Fit"
 
-[node name="WorldMapViewport" type="Control" parent="UI/Screen/Layout/MainContent/WorldPanel/Content"]
+[node name="WorldMapViewport" type="Control" parent="UI/Screen/Layout/MainContent/WorldPanel/Content" unique_id=517458294]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 300)
+clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
-clip_contents = true
 script = ExtResource("9_viewport")
 
-[node name="MapContent" type="Node2D" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/WorldMapViewport"]
+[node name="MapContent" type="Node2D" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/WorldMapViewport" unique_id=2075570547]
 
 [node name="MapRenderer" type="Node2D" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/WorldMapViewport/MapContent" unique_id=1855577675]
 unique_name_in_owner = true
@@ -189,20 +188,20 @@ tile_size = 25
 [node name="Agents" type="Node2D" parent="UI/Screen/Layout/MainContent/WorldPanel/Content/WorldMapViewport/MapContent" unique_id=238102308]
 unique_name_in_owner = true
 
-[node name="NavigationHint" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content"]
+[node name="NavigationHint" type="Label" parent="UI/Screen/Layout/MainContent/WorldPanel/Content" unique_id=1271413822]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.71, 0.8, 1)
 theme_override_font_sizes/font_size = 12
 text = "Scroll: zoom    Drag: pan    F: fit"
 
-[node name="DetailsColumn" type="VBoxContainer" parent="UI/Screen/Layout/MainContent"]
+[node name="DetailsColumn" type="VBoxContainer" parent="UI/Screen/Layout/MainContent" unique_id=2141313903]
 custom_minimum_size = Vector2(600, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.1
 theme_override_constants/separation = 16
 
-[node name="SummaryRow" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn"]
+[node name="SummaryRow" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn" unique_id=956014997]
 custom_minimum_size = Vector2(0, 250)
 layout_mode = 2
 theme_override_constants/separation = 12
@@ -210,73 +209,72 @@ theme_override_constants/separation = 12
 [node name="SimulationStatistics" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow" unique_id=426640084 instance=ExtResource("5_d21ai")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.2
 
-[node name="HeatMapPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow"]
+[node name="HeatMapPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow" unique_id=752554084]
 custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel"]
+[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel" unique_id=1494315071]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content"]
+[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content" unique_id=1204299216]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "Visit heat map"
 
-[node name="HeatMapViewport" type="Control" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content"]
+[node name="HeatMapViewport" type="Control" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content" unique_id=1839046099]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 160)
+clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
-clip_contents = true
 script = ExtResource("9_viewport")
 interactive = false
 
-[node name="MapContent" type="Node2D" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content/HeatMapViewport"]
+[node name="MapContent" type="Node2D" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content/HeatMapViewport" unique_id=970753293]
 
 [node name="HeatMapRenderer" type="Node2D" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content/HeatMapViewport/MapContent" unique_id=1069816007]
 unique_name_in_owner = true
 script = ExtResource("7_d21ai")
 
-[node name="HeatMapLegend" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content"]
+[node name="HeatMapLegend" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/SummaryRow/HeatMapPanel/Content" unique_id=1675757087]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.71, 0.8, 1)
 theme_override_font_sizes/font_size = 12
 text = "White: 0    Orange-red: 10+ visits"
 
-[node name="AgentPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn"]
+[node name="AgentPanel" type="PanelContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn" unique_id=424769134]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel"]
+[node name="Content" type="VBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel" unique_id=1756822970]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Header" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content"]
+[node name="Header" type="HBoxContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content" unique_id=289131430]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content/Header"]
+[node name="Title" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content/Header" unique_id=759421805]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Agent maps"
 
-[node name="AgentCountLabel" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content/Header"]
+[node name="AgentCountLabel" type="Label" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content/Header" unique_id=1120866562]
 unique_name_in_owner = true
 layout_mode = 2
 text = "4 agents"
 
-[node name="AgentScroll" type="ScrollContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content"]
+[node name="AgentScroll" type="ScrollContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content" unique_id=529319790]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-horizontal_scroll_mode = 0
 follow_focus = true
+horizontal_scroll_mode = 0
 
 [node name="AgentMaps" type="GridContainer" parent="UI/Screen/Layout/MainContent/DetailsColumn/AgentPanel/Content/AgentScroll" unique_id=864666743]
 unique_name_in_owner = true
@@ -286,7 +284,7 @@ theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 columns = 2
 
-[node name="SettingsDialog" type="Window" parent="UI"]
+[node name="SettingsDialog" type="Window" parent="UI" unique_id=762109540]
 unique_name_in_owner = true
 visible = false
 script = ExtResource("12_settings")

@@ -2,7 +2,7 @@ extends Node2D
 class_name HeatMapRenderer
 
 @export var tile_size: int = 10
-@export_range(1, 100, 1) var max_heat_visits: int = 10
+@export_range(1, 100, 1) var max_heat_visits: int = 20
 
 @onready var heat_map: HeatMap = %HeatMap
 @onready var world_map: Map = %Map
